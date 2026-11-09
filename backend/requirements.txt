@@ -1,0 +1,6 @@
+streamlit==1.38.0
+pandas==2.2.2
+requests==2.32.3
+SQLAlchemy==2.0.35
+pytest==8.3.2
+cryptography==43.0.1   # for simple password hashing (optional)
