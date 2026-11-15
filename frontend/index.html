@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EduPulse - Performance Analyser & Assignment Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Chart.js CDN for visual analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>⚡ EduPulse Academic Dashboard</h1>
+    <span id="userBadge">Welcome, Student</span>
+  </header>
+
+  <main class="container">
+    <!-- Module 1: CIE Performance Analyser -->
+    <section class="card">
+      <h2>📊 Module 1: CIE Performance Analyser</h2>
+      <div class="form-group">
+        <label>Test-1 Marks (0-25):</label>
+        <input type="number" id="test1" min="0" max="25" value="18">
+      </div>
+      <div class="form-group">
+        <label>Test-2 Marks (0-25):</label>
+        <input type="number" id="test2" min="0" max="25" value="20">
+      </div>
+      <div class="form-group">
+        <label>Lab CIE / Assignment (0-50):</label>
+        <input type="number" id="labCie" min="0" max="50" value="42">
+      </div>
+      <button onclick="calculateCIE()">Calculate CIE & Eligibility</button>
+
+      <div id="cieResult" class="result-box"></div>
+      
+      <!-- Visual Chart -->
+      <canvas id="cieChart" width="400" height="200"></canvas>
+    </section>
+
+    <!-- Module 2: Smart Assignment Deadline Tracker -->
+    <section class="card">
+      <h2>📝 Module 2: Smart Assignment Deadline Tracker</h2>
+      <div class="form-group">
+        <label>Subject:</label>
+        <select id="subjectSelect">
+          <option>Collaborative Dev & DevOps (1BCS303)</option>
+          <option>Operating Systems</option>
+          <option>Database Management Systems</option>
+          <option>Discrete Mathematics</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Assignment Name:</label>
+        <input type="text" id="assignTitle" placeholder="e.g., Lab Exp 6: GitHub Actions">
+      </div>
+      <div class="form-group">
+        <label>Due Date:</label>
+        <input type="date" id="dueDate">
+      </div>
+      <button onclick="addAssignment()">Add Assignment</button>
+
+      <h3>Current Assignments & Deadline Statuses</h3>
+      <table id="assignmentTable">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Assignment</th>
+            <th>Due Date</th>
+            <th>Status Indicator</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="assignmentList"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+
+
+
+
