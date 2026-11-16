@@ -21,7 +21,9 @@ jobs:
           pip install -r backend/requirements.txt
           pip install pytest
       - name: Run pytest
-        run: pytest tests
+        env:
+          PYTHONPATH: .
+        run: python -m pytest tests
       - name: Build Docker image
         run: docker build -t edupulse:test .
         
