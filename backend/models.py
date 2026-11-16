@@ -1,6 +1,14 @@
 import sqlite3
 import os
-from backend.utils import hash_password
+import sys
+
+# Ensure Python can always locate root and sibling modules
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+try:
+    from backend.utils import hash_password
+except ModuleNotFoundError:
+    from utils import hash_password
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "edupulse.db")
 
@@ -91,4 +99,3 @@ def toggle_assignment_completion(assignment_id: int, is_completed: int, db_path=
     conn.execute("UPDATE assignments SET is_completed = ? WHERE id = ?", (is_completed, assignment_id))
     conn.commit()
     conn.close()
-
