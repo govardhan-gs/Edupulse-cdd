@@ -3,8 +3,8 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import streamlit as st  # type: ignore[import-not-found]
-import pandas as pd  # type: ignore[import-not-found]
+import streamlit as st  # type: ignore[reportMissingImports]
+import pandas as pd  # type: ignore[reportMissingImports]
 from datetime import date
 
 try:
@@ -48,7 +48,7 @@ st.set_page_config(page_title="EduPulse - Student Dashboard", page_icon="⚡", l
 SUBJECTS_CONFIG = {
     "Applied Mathematics-III (1BMAT301)": {"credits": 3, "has_lab": False},
     "DDCO (1BCS302)": {"credits": 4, "has_lab": True},
-    "Collaborative development and devops (1BCS303)": {"credits": 4, "has_lab": False},
+    "Collaborative development and devops (1BCS303)": {"credits": 4, "has_lab": True},
     "Data structures and application (1BCS304)": {"credits": 4, "has_lab": True},
     "Object Oriented programming Java (1BCS305)": {"credits": 3, "has_lab": False},
     "Data Analytics and Visualization": {"credits": 3, "has_lab": True}

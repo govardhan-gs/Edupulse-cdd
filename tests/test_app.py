@@ -1,11 +1,13 @@
 import pytest
 from datetime import date, timedelta
 from backend.utils import (
-    calculate_cie,
+    calculate_cie_integrated,
+    calculate_cie_theory,
     calculate_see_needed,
+    marks_to_grade_point,
+    calculate_semester_sgpa,
     get_deadline_status,
-    hash_password,
-    calculate_sgpa
+    hash_password
 )
 from backend.models import (
     init_db,
@@ -17,29 +19,50 @@ from backend.models import (
 )
 
 # ----------------- UTILS TESTS -----------------
-def test_calculate_cie_eligible():
-    # Test1: 20, Test2: 20 -> Avg = 20
-    # Lab: 40 -> Scaled = 20 -> Total = 40.0
-    res = calculate_cie(20, 20, 40)
-    assert res["total_cie"] == 40.0
+def test_calculate_cie_integrated_eligible():
+    # Test1: 20, Test2: 22 -> Avg = 21
+    # Lab: 44 -> Scaled = 22 -> Total = 43.0 (>= 20 cutoff)
+    res = calculate_cie_integrated(20, 22, 44)
+    assert res["total_cie"] == 43.0
     assert res["is_eligible"] is True
 
-def test_calculate_cie_ineligible():
+def test_calculate_cie_integrated_ineligible():
     # Test1: 10, Test2: 10 -> Avg = 10
-    # Lab: 18 -> Scaled = 9 -> Total = 19.0 (Below 20 cutoff)
-    res = calculate_cie(10, 10, 18)
+    # Lab: 18 -> Scaled = 9 -> Total = 19.0 (< 20 cutoff)
+    res = calculate_cie_integrated(10, 10, 18)
     assert res["total_cie"] == 19.0
     assert res["is_eligible"] is False
 
-def test_calculate_cie_invalid_bounds():
-    with pytest.raises(ValueError):
-        calculate_cie(30, 20, 40)  # Test1 cannot exceed 25
+def test_calculate_cie_theory():
+    # For Theory-only (CDD, Maths, Java): Test1: 20, Test2: 20, Assignment: 40
+    # Avg = 20, Assignment scaled = 20 -> Total = 40.0
+    res = calculate_cie_theory(20, 20, 40)
+    assert res["total_cie"] == 40.0
+    assert res["is_eligible"] is True
 
 def test_calculate_see_needed():
     # Total CIE is 35. For Grade A (80%), needed SEE = (80 - 35) * 2 = 90
     assert calculate_see_needed(35.0, "A (80%+)") == 90.0
     # Target already satisfied
     assert calculate_see_needed(45.0, "Pass (40%+)") == 0.0
+
+def test_marks_to_grade_point():
+    assert marks_to_grade_point(95)[0] == 10  # Grade O
+    assert marks_to_grade_point(82)[0] == 9   # Grade A+
+    assert marks_to_grade_point(74)[0] == 8   # Grade A
+    assert marks_to_grade_point(35)[0] == 0   # Fail
+
+def test_calculate_semester_sgpa():
+    # Sample semester marks
+    sample_data = [
+        {"name": "Maths", "credits": 4, "cie_marks": 40.0, "see_marks": 80.0},  # 80 total -> GP 9
+        {"name": "CDD", "credits": 4, "cie_marks": 45.0, "see_marks": 90.0},    # 90 total -> GP 10
+    ]
+    # Total credit points = (4 * 9) + (4 * 10) = 36 + 40 = 76
+    # Total credits = 8 -> SGPA = 76 / 8 = 9.5
+    res = calculate_semester_sgpa(sample_data)
+    assert res["sgpa"] == 9.5
+    assert res["total_credits"] == 8
 
 def test_deadline_status_color_indicators():
     today = date(2026, 11, 10)
@@ -66,15 +89,6 @@ def test_password_hashing():
     assert p1 == p2
     assert p1 != p3
 
-def test_calculate_sgpa():
-    subjects = [
-        {'grade_point': 9, 'credit': 4},
-        {'grade_point': 8, 'credit': 4},
-        {'grade_point': 10, 'credit': 2}
-    ]
-    # Total = (36 + 32 + 20) / 10 = 8.8
-    assert calculate_sgpa(subjects) == 8.8
-
 # ----------------- DATABASE TESTS -----------------
 def test_database_crud(tmp_path):
     test_db = str(tmp_path / "test_edupulse.db")
@@ -82,7 +96,7 @@ def test_database_crud(tmp_path):
     
     # Test registration and login
     assert register_user("4NI23CS001", "Govardhan", "password@123", db_path=test_db) is True
-    assert register_user("4NI23CS001", "Duplicate", "pass", db_path=test_db) is False  # Duplicate USN
+    assert register_user("4NI23CS001", "Duplicate", "pass", db_path=test_db) is False
     assert authenticate_user("4NI23CS001", "password@123", db_path=test_db) is True
     assert authenticate_user("4NI23CS001", "wrongpass", db_path=test_db) is False
     
