@@ -3,8 +3,8 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import streamlit as st
-import pandas as pd
+import streamlit as st  # type: ignore[import-not-found]
+import pandas as pd  # type: ignore[import-not-found]
 from datetime import date
 
 try:
