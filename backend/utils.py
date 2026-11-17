@@ -5,10 +5,10 @@ def hash_password(password: str) -> str:
     """Hashes a password using SHA-256."""
     return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
-def calculate_cie(test1: float, test2: float, lab_cie: float) -> dict:
+def calculate_cie_integrated(test1: float, test2: float, lab_cie: float) -> dict:
     """
-    Calculates CIE according to the NIE 2026-27 scheme:
-    Total CIE (50) = Average of Tests (25) + Scaled Lab (25)
+    For Integrated Subjects (Test1 + Test2 + Lab):
+    Total CIE (50) = Test Avg (25) + Scaled Lab (25)
     """
     if not (0 <= test1 <= 25 and 0 <= test2 <= 25 and 0 <= lab_cie <= 50):
         raise ValueError("Marks out of permissible bounds.")
@@ -16,8 +16,6 @@ def calculate_cie(test1: float, test2: float, lab_cie: float) -> dict:
     test_avg = (test1 + test2) / 2.0
     lab_scaled = lab_cie / 2.0
     total_cie = round(test_avg + lab_scaled, 2)
-    
-    # 40% eligibility threshold (20 out of 50)
     is_eligible = total_cie >= 20.0
     
     return {
@@ -26,38 +24,83 @@ def calculate_cie(test1: float, test2: float, lab_cie: float) -> dict:
         "status_message": "Eligible for SEE" if is_eligible else "Not Eligible (CIE < 20/50)"
     }
 
+def calculate_cie_theory(test1: float, test2: float, assignment: float = 0.0) -> dict:
+    """
+    For Theory-Only Subjects:
+    Total CIE (50) = (Test1 + Test2) or Test Avg (25) + Assignment (25)
+    """
+    total_cie = round(((test1 + test2) / 2.0) + (assignment / 2.0 if assignment > 0 else (test1 + test2) / 2.0), 2)
+    is_eligible = total_cie >= 20.0
+    return {
+        "total_cie": total_cie,
+        "is_eligible": is_eligible,
+        "status_message": "Eligible for SEE" if is_eligible else "Not Eligible (CIE < 20/50)"
+    }
+
 def calculate_see_needed(total_cie: float, target_grade: str) -> float:
-    """
-    Calculates required marks in SEE (out of 100) to secure a target grade.
-    Total = 50% CIE + 50% SEE
-    """
     grade_cutoffs = {
-        "S (90%+)": 90,
+        "S / O (90%+)": 90,
         "A (80%+)": 80,
         "B (70%+)": 70,
         "Pass (40%+)": 40
     }
     target_marks = grade_cutoffs.get(target_grade, 40)
-    # Target formula: Total_CIE + (SEE / 2) >= target_marks
     needed_see = max(0.0, (target_marks - total_cie) * 2.0)
     return round(needed_see, 1)
 
+def marks_to_grade_point(total_marks_100: float) -> tuple:
+    """Converts total 100 marks (50 CIE + 50 SEE) to Grade & Grade Points (VTU/NIE NEP Scheme)."""
+    if total_marks_100 >= 90: return (10, "O (Outstanding)")
+    elif total_marks_100 >= 80: return (9, "A+ (Excellent)")
+    elif total_marks_100 >= 70: return (8, "A (Very Good)")
+    elif total_marks_100 >= 60: return (7, "B+ (Good)")
+    elif total_marks_100 >= 50: return (6, "B (Above Average)")
+    elif total_marks_100 >= 45: return (5, "C (Average)")
+    elif total_marks_100 >= 40: return (4, "P (Pass)")
+    else: return (0, "F (Fail)")
+
+def calculate_semester_sgpa(subject_data_list: list) -> dict:
+    """
+    Calculates precise SGPA = Sum(Credit * Grade_Point) / Sum(Credits)
+    """
+    total_credits = 0
+    total_credit_points = 0
+    detailed_results = []
+
+    for item in subject_data_list:
+        cie_50 = item["cie_marks"]
+        see_100 = item["see_marks"]
+        credits = item["credits"]
+
+        # Final score out of 100: 50% CIE + 50% SEE
+        total_100 = min(100.0, cie_50 + (see_100 / 2.0))
+        gp, letter = marks_to_grade_point(total_100)
+        
+        total_credits += credits
+        total_credit_points += (credits * gp)
+
+        detailed_results.append({
+            "Subject": item["name"],
+            "Credits": credits,
+            "CIE (50)": cie_50,
+            "Est. SEE (100)": see_100,
+            "Total (100)": round(total_100, 1),
+            "Grade Point": gp,
+            "Grade": letter
+        })
+
+    sgpa = round(total_credit_points / total_credits, 2) if total_credits > 0 else 0.0
+    return {
+        "sgpa": sgpa,
+        "total_credits": total_credits,
+        "details": detailed_results
+    }
+
 def get_deadline_status(due_date_str: str, is_completed: bool, today: date = None) -> dict:
-    """
-    Compares current date with deadline and returns the 5 color-coded statuses
-    specified on Page 3 of the synopsis:
-    - Green: Completed
-    - Red: Overdue
-    - Orange: Due Today
-    - Yellow: Due Soon (1-2 days)
-    - Blue: Upcoming (>2 days)
-    """
     if is_completed:
         return {"label": "Completed", "color": "green", "badge": "🟢 Completed"}
-    
     if today is None:
         today = date.today()
-        
     if isinstance(due_date_str, str):
         due_date = datetime.strptime(due_date_str, "%Y-%m-%d").date()
     else:
@@ -73,13 +116,3 @@ def get_deadline_status(due_date_str: str, is_completed: bool, today: date = Non
         return {"label": "Due Soon", "color": "yellow", "badge": f"🟡 Due Soon ({diff}d left)"}
     else:
         return {"label": "Upcoming", "color": "blue", "badge": f"🔵 Upcoming ({diff}d left)"}
-
-def calculate_sgpa(subjects: list) -> float:
-    """
-    Calculates SGPA based on list of dicts: [{'grade_point': 9, 'credit': 4}, ...]
-    """
-    total_credits = sum(s['credit'] for s in subjects)
-    if total_credits == 0:
-        return 0.0
-    weighted_points = sum(s['grade_point'] * s['credit'] for s in subjects)
-    return round(weighted_points / total_credits, 2)

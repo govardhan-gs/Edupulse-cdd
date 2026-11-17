@@ -1,14 +1,12 @@
 import sys
 import os
 
-# 1. Ensure Python can always locate the project root and sibling modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import streamlit as st
 import pandas as pd
 from datetime import date
 
-# 2. Resilient imports that work both locally and inside Docker
 try:
     from backend.models import (
         init_db,
@@ -19,8 +17,10 @@ try:
         toggle_assignment_completion
     )
     from backend.utils import (
-        calculate_cie,
+        calculate_cie_integrated,
+        calculate_cie_theory,
         calculate_see_needed,
+        calculate_semester_sgpa,
         get_deadline_status
     )
 except ModuleNotFoundError:
@@ -33,168 +33,169 @@ except ModuleNotFoundError:
         toggle_assignment_completion
     )
     from utils import (
-        calculate_cie,
+        calculate_cie_integrated,
+        calculate_cie_theory,
         calculate_see_needed,
+        calculate_semester_sgpa,
         get_deadline_status
     )
 
-# 3. Initialize database tables automatically
 init_db()
 
-# 4. Streamlit Page Configuration
-st.set_page_config(
-    page_title="EduPulse - Academic Dashboard",
-    page_icon="⚡",
-    layout="wide"
-)
+st.set_page_config(page_title="EduPulse - Student Dashboard", page_icon="⚡", layout="wide")
 
-# 5. Session State for Authentication
+# ----------------- SEMESTER 3 COURSE DEFINITION -----------------
+SUBJECTS_CONFIG = {
+    "Applied Mathematics-III (1BMAT301)": {"credits": 3, "has_lab": False},
+    "DDCO (1BCS302)": {"credits": 4, "has_lab": True},
+    "Collaborative development and devops (1BCS303)": {"credits": 4, "has_lab": False},
+    "Data structures and application (1BCS304)": {"credits": 4, "has_lab": True},
+    "Object Oriented programming Java (1BCS305)": {"credits": 3, "has_lab": False},
+    "Data Analytics and Visualization": {"credits": 3, "has_lab": True}
+}
+
+ALL_SUBJECT_NAMES = list(SUBJECTS_CONFIG.keys())
+
 if "user" not in st.session_state:
     st.session_state.user = None
 
-# Custom helper for re-running
 def refresh():
-    if hasattr(st, "rerun"):
-        st.rerun()
-    else:
-        st.experimental_rerun()
+    if hasattr(st, "rerun"): st.rerun()
+    else: st.experimental_rerun()
 
-# -------------------------------------------------------------
-# AUTHENTICATION SCREEN (LOGIN & REGISTRATION)
-# -------------------------------------------------------------
+# ----------------- AUTHENTICATION -----------------
 if not st.session_state.user:
-    st.title("⚡ EduPulse: Student Academic Performance & Assignment Tracker")
-    st.markdown("Please log in with your university credentials or register a new student account.")
+    st.title("⚡ EduPulse: Academic Performance & Assignment Tracker")
+    st.markdown("Please log in with your university credentials (e.g., `4NI23CS001` / `password123`).")
     
     col_auth, _ = st.columns([1, 1])
-    
     with col_auth:
-        mode = st.radio("Choose Action:", ["Login", "Register New Student"], horizontal=True)
-        
+        mode = st.radio("Action:", ["Login", "Register"], horizontal=True)
         if mode == "Login":
-            st.subheader("Student Login")
-            usn_input = st.text_input("University Seat Number (USN):", placeholder="e.g. 4NI23CS001").strip().upper()
+            usn_input = st.text_input("USN:", placeholder="e.g. 4NI23CS001").strip().upper()
             pwd_input = st.text_input("Password:", type="password")
-            
             if st.button("Log In", use_container_width=True):
                 if authenticate_user(usn_input, pwd_input):
                     st.session_state.user = usn_input
-                    st.success("Login successful!")
                     refresh()
                 else:
-                    st.error("Invalid USN or Password. (Default demo: 4NI23CS001 / password123)")
-                    
+                    st.error("Invalid credentials.")
         else:
-            st.subheader("Student Registration")
-            new_usn = st.text_input("Enter USN:", placeholder="e.g. 4NI23CS042").strip().upper()
-            new_name = st.text_input("Full Name:", placeholder="e.g. John Doe").strip()
-            new_pwd = st.text_input("Choose Password:", type="password")
-            
+            new_usn = st.text_input("USN:").strip().upper()
+            new_name = st.text_input("Full Name:")
+            new_pwd = st.text_input("Password:", type="password")
             if st.button("Create Account", use_container_width=True):
-                if not new_usn or not new_name or not new_pwd:
-                    st.warning("Please fill out all fields.")
+                if register_user(new_usn, new_name, new_pwd):
+                    st.success("Account created! Please switch to Login.")
                 else:
-                    if register_user(new_usn, new_name, new_pwd):
-                        st.success("Account created successfully! Please switch to Login.")
-                    else:
-                        st.error("USN already registered in the system.")
+                    st.error("USN already exists.")
 
-# -------------------------------------------------------------
-# MAIN APPLICATION DASHBOARD (AUTHENTICATED)
-# -------------------------------------------------------------
+# ----------------- DASHBOARD -----------------
 else:
-    # Sidebar
     st.sidebar.title("⚡ EduPulse")
-    st.sidebar.markdown(f"Logged in as: **`{st.session_state.user}`**")
+    st.sidebar.markdown(f"Logged in: **`{st.session_state.user}`**")
     if st.sidebar.button("Logout", use_container_width=True):
         st.session_state.user = None
         refresh()
 
     st.title("🎓 Student Academic Performance & Smart Assignment Tracker")
 
-    # Tabs for the two core modules
-    tab_cie, tab_tracker = st.tabs([
+    tab1, tab2, tab3 = st.tabs([
         "📊 Module 1: CIE Performance Analyser",
-        "📝 Module 2: Smart Assignment Deadline Tracker"
+        "🎯 Module 2: Semester SGPA Calculator",
+        "📝 Module 3: Smart Assignment Deadline Tracker"
     ])
 
-    # ---------------------------------------------------------
-    # MODULE 1: CIE PERFORMANCE ANALYSER
-    # ---------------------------------------------------------
-    with tab_cie:
-        st.header("CIE Marks Evaluation (NIE 2026-27 Scheme)")
-        st.caption("Calculates total CIE out of 50 based on institutional weighting: Test Average (25) + Scaled Lab CIE (25)")
+    # ----------------- TAB 1: CIE ANALYSER -----------------
+    with tab1:
+        st.header("CIE Marks Evaluation (3rd Sem CSE Scheme)")
+        sub_select = st.selectbox("Select Subject:", ALL_SUBJECT_NAMES)
+        cfg = SUBJECTS_CONFIG[sub_select]
 
         col1, col2 = st.columns(2)
-
         with col1:
-            st.subheader("Input Component Marks")
-            sub_select = st.selectbox("Select Subject:", [
-                "Collaborative Dev & DevOps (1BCS303)",
-                "Operating Systems",
-                "Database Management Systems",
-                "Discrete Mathematical Structures"
-            ])
+            st.subheader("Component Marks Input")
             t1 = st.slider("Test-1 Marks (Max 25):", 0.0, 25.0, 18.0, step=0.5)
             t2 = st.slider("Test-2 Marks (Max 25):", 0.0, 25.0, 20.0, step=0.5)
-            lab = st.slider("Lab Continuous Evaluation (Max 50):", 0.0, 50.0, 42.0, step=1.0)
 
-            cie_data = calculate_cie(t1, t2, lab)
+            if cfg["has_lab"]:
+                st.info("ℹ️ **Integrated Course:** Evaluated as `(Test1 + Test2)/2 + Lab_CIE/2`")
+                lab = st.slider("Lab CIE (Max 50):", 0.0, 50.0, 42.0, step=1.0)
+                cie_data = calculate_cie_integrated(t1, t2, lab)
+            else:
+                st.info("ℹ️ **Theory Course:** Evaluated as `(Test1 + Test2)/2 + Assignment/2`")
+                assign = st.slider("Assignment/Activity Marks (Max 50):", 0.0, 50.0, 40.0, step=1.0)
+                cie_data = calculate_cie_theory(t1, t2, assign)
 
         with col2:
-            st.subheader("Performance & Eligibility Analysis")
+            st.subheader("Eligibility & Prediction")
             total_cie = cie_data["total_cie"]
-            st.metric(label="Total Continuous Internal Evaluation (CIE)", value=f"{total_cie} / 50")
+            st.metric("Total CIE Marks", f"{total_cie} / 50")
 
             if cie_data["is_eligible"]:
                 st.success("✅ **Eligible for Semester End Examination (SEE)** (Satisfies ≥ 40% cutoff)")
             else:
-                st.error("⚠️ **Ineligible for SEE** (Total CIE is below 20/50 cutoff threshold)")
+                st.error("⚠️ **Ineligible for SEE** (Total CIE is below 20/50 cutoff)")
 
-            st.markdown("---")
-            st.subheader("🎯 Semester End Exam (SEE) Target Predictor")
-            target_grade = st.selectbox(
-                "Select Target Grade:",
-                ["S (90%+)", "A (80%+)", "B (70%+)", "Pass (40%+)"]
-            )
+            target_grade = st.selectbox("Target Grade:", ["S / O (90%+)", "A (80%+)", "B (70%+)", "Pass (40%+)"])
             needed_see = calculate_see_needed(total_cie, target_grade)
-            
             if needed_see <= 100:
-                st.info(f"To achieve **{target_grade}**, you must score at least **{needed_see} / 100** in the Semester End Exam (SEE).")
+                st.info(f"🎯 Target SEE Score needed: **{needed_see} / 100**")
             else:
-                st.warning("Mathematically unreachable: Current CIE requires more than 100 in SEE for this grade.")
+                st.warning("Mathematically unreachable with current CIE.")
 
-    # ---------------------------------------------------------
-    # MODULE 2: SMART ASSIGNMENT DEADLINE TRACKER
-    # ---------------------------------------------------------
-    with tab_tracker:
-        st.header("Smart Assignment Deadline Tracker")
-        st.caption("Automatically compares current system date with assignment deadlines to show real-time status indicators.")
+    # ----------------- TAB 2: SGPA CALCULATOR -----------------
+    with tab2:
+        st.header("🎯 Precise Semester SGPA Calculator")
+        st.caption("Calculates your final SGPA based on all 6 subjects using VTU/NIE NEP grading rubrics.")
 
-        # Assignment Creation
-        with st.expander("➕ Add New Assignment / Lab Milestone", expanded=False):
+        st.subheader("Enter CIE (out of 50) and Estimated SEE (out of 100) for all subjects:")
+        subject_inputs = []
+
+        cols = st.columns(2)
+        for idx, (s_name, s_info) in enumerate(SUBJECTS_CONFIG.items()):
+            col_target = cols[idx % 2]
+            with col_target:
+                st.markdown(f"**{s_name}** `({s_info['credits']} Credits)`")
+                c_cie, c_see = st.columns(2)
+                cie_val = c_cie.number_input(f"CIE (50)", min_value=0.0, max_value=50.0, value=38.0, key=f"cie_{idx}")
+                see_val = c_see.number_input(f"Expected SEE (100)", min_value=0.0, max_value=100.0, value=75.0, key=f"see_{idx}")
+                subject_inputs.append({
+                    "name": s_name,
+                    "credits": s_info["credits"],
+                    "cie_marks": cie_val,
+                    "see_marks": see_val
+                })
+                st.markdown("---")
+
+        sgpa_res = calculate_semester_sgpa(subject_inputs)
+
+        st.subheader("📈 SGPA Calculation Result")
+        res_col1, res_col2 = st.columns([1, 2])
+        with res_col1:
+            st.metric("Projected SGPA", f"{sgpa_res['sgpa']} / 10.0")
+            st.metric("Total Semester Credits", sgpa_res["total_credits"])
+
+        with res_col2:
+            st.dataframe(pd.DataFrame(sgpa_res["details"]), use_container_width=True, hide_index=True)
+
+    # ----------------- TAB 3: SMART ASSIGNMENT TRACKER -----------------
+    with tab3:
+        st.header("📝 Smart Assignment Deadline Tracker")
+        with st.expander("➕ Add New Assignment", expanded=False):
             with st.form("new_assignment_form"):
-                subject_name = st.selectbox("Subject:", [
-                    "Collaborative Dev & DevOps (1BCS303)",
-                    "Operating Systems",
-                    "Database Management Systems",
-                    "Discrete Mathematical Structures"
-                ])
-                assignment_title = st.text_input("Assignment Name / Milestone:", placeholder="e.g. Exp 6: GitHub Actions Workflow")
-                due_date_val = st.date_input("Submission Deadline:", min_value=date.today())
-                submitted = st.form_submit_button("Save Assignment")
-                
-                if submitted:
-                    if not assignment_title:
-                        st.warning("Please provide an assignment title.")
-                    else:
+                subject_name = st.selectbox("Subject:", ALL_SUBJECT_NAMES)
+                assignment_title = st.text_input("Assignment Name / Milestone:")
+                due_date_val = st.date_input("Deadline Date:", min_value=date.today())
+                if st.form_submit_button("Save Assignment"):
+                    if assignment_title:
                         add_assignment(st.session_state.user, subject_name, assignment_title, str(due_date_val))
-                        st.success(f"Assignment '{assignment_title}' added successfully!")
+                        st.success("Assignment saved!")
                         refresh()
+                    else:
+                        st.warning("Please provide an assignment title.")
 
-        # Display Assignments
         raw_assignments = get_user_assignments(st.session_state.user)
-
         if raw_assignments:
             display_list = []
             for item in raw_assignments:
@@ -209,33 +210,14 @@ else:
                 })
 
             df = pd.DataFrame(display_list)
-            
-            # Show summary metrics
-            c_tot, c_done, c_pend = st.columns(3)
-            c_tot.metric("Total Assignments", len(df))
-            c_done.metric("Completed", len(df[df["Done"] == True]))
-            c_pend.metric("Pending Action", len(df[df["Done"] == False]))
+            st.dataframe(df[["ID", "Subject", "Assignment", "Deadline", "Status Indicator"]], use_container_width=True, hide_index=True)
 
-            st.dataframe(
-                df[["ID", "Subject", "Assignment", "Deadline", "Status Indicator"]],
-                use_container_width=True,
-                hide_index=True
-            )
-
-            # Toggle Completion Status
-            st.subheader("Update Submission Status")
-            selected_ids = st.multiselect(
-                "Select Assignment IDs to toggle completion:",
-                options=[item["id"] for item in raw_assignments],
-                format_func=lambda x: f"ID {x}: {next(a['title'] for a in raw_assignments if a['id'] == x)}"
-            )
-
-            if st.button("Toggle Status (Completed / Incomplete)"):
+            selected_ids = st.multiselect("Toggle Completion for Assignment IDs:", options=[item["id"] for item in raw_assignments])
+            if st.button("Update Status"):
                 for aid in selected_ids:
                     current_task = next(a for a in raw_assignments if a["id"] == aid)
-                    new_val = 0 if current_task["is_completed"] else 1
-                    toggle_assignment_completion(aid, new_val)
-                st.success("Assignment status updated!")
+                    toggle_assignment_completion(aid, 0 if current_task["is_completed"] else 1)
+                st.success("Status updated!")
                 refresh()
         else:
-            st.info("No assignments recorded yet. Use the '➕ Add New Assignment' section above to create one!")
+            st.info("No assignments recorded yet. Add your first assignment above!")
