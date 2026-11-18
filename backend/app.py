@@ -4,8 +4,8 @@ import os
 # 1. Ensure Python can always locate the project root and sibling modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import streamlit as st
-import pandas as pd
+import streamlit as st  # type: ignore[reportMissingImports]
+import pandas as pd  # type: ignore[reportMissingImports]
 from datetime import date
 
 try:
