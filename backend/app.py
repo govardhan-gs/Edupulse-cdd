@@ -4,10 +4,8 @@ import os
 # 1. Ensure Python can always locate the project root and sibling modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import importlib
-
-st = importlib.import_module("streamlit")
-pd = importlib.import_module("pandas")
+import streamlit as st
+import pandas as pd
 from datetime import date
 
 try:
@@ -55,22 +53,11 @@ if os.path.exists(css_path):
 
 # ----------------- SEMESTER 3 COURSE DEFINITION -----------------
 SUBJECTS_CONFIG = {
-    # 1. Theory Course
     "Applied Mathematics-III (1BMAT301)": {"credits": 4, "has_lab": False},
-
-    # 2. Lab Integrated Course
     "DDCO (1BCS302)": {"credits": 4, "has_lab": True},
-
-    # 3. Theory Course (CDD)
     "Collaborative development and devops (1BCS303)": {"credits": 4, "has_lab": False},
-
-    # 4. Lab Integrated Course
     "Data structures and application (1BCS304)": {"credits": 4, "has_lab": True},
-
-    # 5. Theory Course
     "Object Oriented programming Java (1BCS305)": {"credits": 3, "has_lab": False},
-
-    # 6. Lab Integrated Course
     "Data Analytics and Visualization": {"credits": 3, "has_lab": True}
 }
 
@@ -113,7 +100,7 @@ if not st.session_state.user:
 # ----------------- MAIN DASHBOARD -----------------
 else:
     st.sidebar.title("⚡ EduPulse")
-    st.sidebar.markdown(f"Logged in: **`{st.session_state.user}`**")
+    st.sidebar.markdown(f"👤 Logged in as: **`{st.session_state.user}`**")
     if st.sidebar.button("Logout", use_container_width=True):
         st.session_state.user = None
         refresh()
@@ -131,8 +118,12 @@ else:
     # -------------------------------------------------------------
     with tab1:
         st.header("Single Subject CIE Evaluation")
-        sub_select = st.selectbox("Select Subject:", ALL_SUBJECT_NAMES)
+        sub_select = st.selectbox("Select Subject:", ALL_SUBJECT_NAMES, key="single_sub_select")
         cfg = SUBJECTS_CONFIG[sub_select]
+
+        # VISUAL SELECTION BADGE
+        course_type = "🔬 Integrated with Lab" if cfg["has_lab"] else "📖 Theory Course"
+        st.info(f"📌 **Currently Selected:** `{sub_select}` &nbsp;|&nbsp; **Credits:** `{cfg['credits']}` &nbsp;|&nbsp; **Type:** `{course_type}`")
 
         col1, col2 = st.columns(2)
         with col1:
@@ -141,11 +132,11 @@ else:
             t2 = st.slider("Test-2 Marks (Max 25):", 0.0, 25.0, 20.0, step=0.5, key="t2_single")
 
             if cfg["has_lab"]:
-                st.info("🔬 **Integrated Course:** Evaluated as `(Test1 + Test2)/2 + Lab_CIE/2`")
+                st.caption("Formula: `(Test1 + Test2)/2 + Lab_CIE/2`")
                 lab = st.slider("Lab CIE (Max 50):", 0.0, 50.0, 42.0, step=1.0, key="lab_single")
                 cie_data = calculate_cie_integrated(t1, t2, lab)
             else:
-                st.info("📖 **Theory Course:** Evaluated as `(Test1 + Test2)/2 + Assignment/2`")
+                st.caption("Formula: `(Test1 + Test2)/2 + Assignment/2`")
                 assign = st.slider("Assignment / Activity Marks (Max 50):", 0.0, 50.0, 40.0, step=1.0, key="assign_single")
                 cie_data = calculate_cie_theory(t1, t2, assign)
 
@@ -155,14 +146,14 @@ else:
             st.metric("Total CIE Marks", f"{total_cie} / 50")
 
             if cie_data["is_eligible"]:
-                st.success("✅ **Eligible for Semester End Examination (SEE)** (Satisfies ≥ 40% cutoff)")
+                st.success(f"✅ **Eligible for SEE in {sub_select}** (Satisfies ≥ 40% cutoff)")
             else:
-                st.error("⚠️ **Ineligible for SEE** (Total CIE is below 20/50 cutoff threshold)")
+                st.error(f"⚠️ **Ineligible for SEE in {sub_select}** (Below 20/50 cutoff threshold)")
 
             target_grade = st.selectbox("Target Grade:", ["S / O (90%+)", "A (80%+)", "B (70%+)", "Pass (40%+)"])
             needed_see = calculate_see_needed(total_cie, target_grade)
             if needed_see <= 100:
-                st.info(f"🎯 Target SEE Score needed: **{needed_see} / 100**")
+                st.info(f"🎯 Target SEE Score needed in **{sub_select}**: **{needed_see} / 100**")
             else:
                 st.warning("Mathematically unreachable with current CIE.")
 
@@ -171,11 +162,10 @@ else:
     # -------------------------------------------------------------
     with tab2:
         st.header("🎯 Precise Semester SGPA Calculator")
-        st.caption("Enter your component marks for each subject. Total CIE, Final Marks out of 100, and Grade Points are automatically calculated.")
+        st.caption("Calculates your final SGPA based on all 6 subjects using VTU/NIE NEP grading rubrics.")
 
         subject_inputs = []
 
-        # Display subjects in 2 columns
         grid_cols = st.columns(2)
         for idx, (s_name, s_info) in enumerate(SUBJECTS_CONFIG.items()):
             col_target = grid_cols[idx % 2]
@@ -191,11 +181,9 @@ else:
 
                 c3, c4 = st.columns(2)
                 if s_info["has_lab"]:
-                    # Lab-integrated input
                     lab_val = c3.number_input("Lab CIE (50)", min_value=0.0, max_value=50.0, value=42.0, step=1.0, key=f"lab_{idx}")
                     cie_calculated = calculate_cie_integrated(t1_val, t2_val, lab_val)["total_cie"]
                 else:
-                    # Theory input
                     assign_val = c3.number_input("Assignment (50)", min_value=0.0, max_value=50.0, value=40.0, step=1.0, key=f"assign_{idx}")
                     cie_calculated = calculate_cie_theory(t1_val, t2_val, assign_val)["total_cie"]
 
@@ -211,7 +199,6 @@ else:
                     "see_marks": see_val
                 })
 
-        # Calculate Overall SGPA
         sgpa_res = calculate_semester_sgpa(subject_inputs)
 
         st.subheader("📈 Overall Semester Result & Grade Breakdown")
@@ -228,23 +215,40 @@ else:
     # -------------------------------------------------------------
     with tab3:
         st.header("📝 Smart Assignment Deadline Tracker")
+
+        # 1. Create New Assignment
         with st.expander("➕ Add New Assignment", expanded=False):
             with st.form("new_assignment_form"):
-                subject_name = st.selectbox("Subject:", ALL_SUBJECT_NAMES)
-                assignment_title = st.text_input("Assignment Name / Milestone:")
+                subject_name = st.selectbox("Select Subject for Assignment:", ALL_SUBJECT_NAMES, key="new_assign_sub")
+                st.caption(f"📌 Task will be filed under: **{subject_name}**")
+                
+                assignment_title = st.text_input("Assignment Name / Milestone:", placeholder="e.g. Exp 6: GitHub Actions CI")
                 due_date_val = st.date_input("Deadline Date:", min_value=date.today())
+                
                 if st.form_submit_button("Save Assignment"):
                     if assignment_title:
                         add_assignment(st.session_state.user, subject_name, assignment_title, str(due_date_val))
-                        st.success("Assignment saved!")
+                        st.success(f"Assignment '{assignment_title}' added for {subject_name}!")
                         refresh()
                     else:
                         st.warning("Please provide an assignment title.")
 
         raw_assignments = get_user_assignments(st.session_state.user)
+        
         if raw_assignments:
+            # 2. Interactive Subject Filter
+            st.markdown("### 📋 Assignment List")
+            filter_sub = st.selectbox("🔍 Filter Table by Subject:", ["All Subjects"] + ALL_SUBJECT_NAMES, key="table_filter")
+
+            if filter_sub == "All Subjects":
+                filtered_assignments = raw_assignments
+                st.caption(f"Showing **all {len(filtered_assignments)} assignment(s)** across subjects.")
+            else:
+                filtered_assignments = [a for a in raw_assignments if a["subject"] == filter_sub]
+                st.info(f"🔎 Showing **{len(filtered_assignments)} assignment(s)** for: **`{filter_sub}`**")
+
             display_list = []
-            for item in raw_assignments:
+            for item in filtered_assignments:
                 status_info = get_deadline_status(item["due_date"], bool(item["is_completed"]))
                 display_list.append({
                     "ID": item["id"],
@@ -258,12 +262,26 @@ else:
             df = pd.DataFrame(display_list)
             st.dataframe(df[["ID", "Subject", "Assignment", "Deadline", "Status Indicator"]], use_container_width=True, hide_index=True)
 
-            selected_ids = st.multiselect("Toggle Completion for Assignment IDs:", options=[item["id"] for item in raw_assignments])
-            if st.button("Update Status"):
+            # 3. Interactive Completion Status Selection with Live Feedback
+            st.markdown("### 🔄 Update Submission Status")
+            
+            selected_ids = st.multiselect(
+                "Select Assignment IDs to toggle completion:",
+                options=[item["id"] for item in raw_assignments],
+                format_func=lambda x: f"ID {x}: {next(a['title'] for a in raw_assignments if a['id'] == x)} ({next(a['subject'] for a in raw_assignments if a['id'] == x)})",
+                key="id_multiselect"
+            )
+
+            # VISUAL CONFIRMATION: Show exact items selected
+            if selected_ids:
+                selected_titles = [f"**ID {aid}** (`{next(a['title'] for a in raw_assignments if a['id'] == aid)}`)" for aid in selected_ids]
+                st.success(f"Selected for update: {', '.join(selected_titles)}")
+
+            if st.button("Toggle Status (Completed / Incomplete)", disabled=(len(selected_ids) == 0)):
                 for aid in selected_ids:
                     current_task = next(a for a in raw_assignments if a["id"] == aid)
                     toggle_assignment_completion(aid, 0 if current_task["is_completed"] else 1)
-                st.success("Status updated!")
+                st.success("Assignment status updated successfully!")
                 refresh()
         else:
             st.info("No assignments recorded yet. Add your first assignment above!")
