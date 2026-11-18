@@ -45,11 +45,34 @@ init_db()
 
 st.set_page_config(page_title="EduPulse - Student Dashboard", page_icon="⚡", layout="wide")
 
-# Apply custom frontend/style.css if it exists
-css_path = os.path.join(os.path.dirname(__file__), "..", "frontend", "style.css")
-if os.path.exists(css_path):
-    with open(css_path) as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+# ----------------- CUSTOM HIGH-CONTRAST CSS FOR DROPDOWNS -----------------
+# Fixes invisible text in Streamlit Dark Mode selectboxes
+st.markdown("""
+<style>
+    /* Force dropdown selectbox text to be bright and visible */
+    div[data-baseweb="select"] * {
+        color: #ffffff !important;
+        font-weight: 500 !important;
+    }
+    div[data-baseweb="select"] > div {
+        background-color: #1e293b !important;
+        border: 1px solid #3b82f6 !important;
+    }
+    /* Highlight the selected option tag */
+    .selected-tag {
+        background-color: #1e3a8a;
+        color: #60a5fa !important;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: bold;
+        display: inline-block;
+        margin-top: 4px;
+        margin-bottom: 12px;
+        border: 1px solid #3b82f6;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # ----------------- SEMESTER 3 COURSE DEFINITION -----------------
 SUBJECTS_CONFIG = {
@@ -118,12 +141,18 @@ else:
     # -------------------------------------------------------------
     with tab1:
         st.header("Single Subject CIE Evaluation")
+        
+        # 1. Subject Dropdown with Visible Confirmation
         sub_select = st.selectbox("Select Subject:", ALL_SUBJECT_NAMES, key="single_sub_select")
         cfg = SUBJECTS_CONFIG[sub_select]
 
-        # VISUAL SELECTION BADGE
+        # VISIBLE SELECTION BADGE (Fixes the blank box issue)
         course_type = "🔬 Integrated with Lab" if cfg["has_lab"] else "📖 Theory Course"
-        st.info(f"📌 **Currently Selected:** `{sub_select}` &nbsp;|&nbsp; **Credits:** `{cfg['credits']}` &nbsp;|&nbsp; **Type:** `{course_type}`")
+        st.markdown(f"""
+        <div class="selected-tag">
+            👉 Selected Subject: <b>{sub_select}</b> | Credits: <b>{cfg['credits']}</b> | Type: <b>{course_type}</b>
+        </div>
+        """, unsafe_allow_html=True)
 
         col1, col2 = st.columns(2)
         with col1:
@@ -150,7 +179,10 @@ else:
             else:
                 st.error(f"⚠️ **Ineligible for SEE in {sub_select}** (Below 20/50 cutoff threshold)")
 
-            target_grade = st.selectbox("Target Grade:", ["S / O (90%+)", "A (80%+)", "B (70%+)", "Pass (40%+)"])
+            # 2. Target Grade Dropdown with Visible Confirmation
+            target_grade = st.selectbox("Target Grade:", ["S / O (90%+)", "A (80%+)", "B (70%+)", "Pass (40%+)"], key="target_grade_select")
+            st.markdown(f'<div class="selected-tag">🎯 Goal: <b>{target_grade}</b></div>', unsafe_allow_html=True)
+
             needed_see = calculate_see_needed(total_cie, target_grade)
             if needed_see <= 100:
                 st.info(f"🎯 Target SEE Score needed in **{sub_select}**: **{needed_see} / 100**")
@@ -239,13 +271,12 @@ else:
             # 2. Interactive Subject Filter
             st.markdown("### 📋 Assignment List")
             filter_sub = st.selectbox("🔍 Filter Table by Subject:", ["All Subjects"] + ALL_SUBJECT_NAMES, key="table_filter")
+            st.markdown(f'<div class="selected-tag">🔍 Active Filter: <b>{filter_sub}</b></div>', unsafe_allow_html=True)
 
             if filter_sub == "All Subjects":
                 filtered_assignments = raw_assignments
-                st.caption(f"Showing **all {len(filtered_assignments)} assignment(s)** across subjects.")
             else:
                 filtered_assignments = [a for a in raw_assignments if a["subject"] == filter_sub]
-                st.info(f"🔎 Showing **{len(filtered_assignments)} assignment(s)** for: **`{filter_sub}`**")
 
             display_list = []
             for item in filtered_assignments:
@@ -262,20 +293,20 @@ else:
             df = pd.DataFrame(display_list)
             st.dataframe(df[["ID", "Subject", "Assignment", "Deadline", "Status Indicator"]], use_container_width=True, hide_index=True)
 
-            # 3. Interactive Completion Status Selection with Live Feedback
+            # 3. Interactive Completion Status Selection
             st.markdown("### 🔄 Update Submission Status")
             
             selected_ids = st.multiselect(
                 "Select Assignment IDs to toggle completion:",
                 options=[item["id"] for item in raw_assignments],
-                format_func=lambda x: f"ID {x}: {next(a['title'] for a in raw_assignments if a['id'] == x)} ({next(a['subject'] for a in raw_assignments if a['id'] == x)})",
+                format_func=lambda x: f"ID {x}: {next(a['title'] for a in raw_assignments if a['id'] == x)}",
                 key="id_multiselect"
             )
 
             # VISUAL CONFIRMATION: Show exact items selected
             if selected_ids:
-                selected_titles = [f"**ID {aid}** (`{next(a['title'] for a in raw_assignments if a['id'] == aid)}`)" for aid in selected_ids]
-                st.success(f"Selected for update: {', '.join(selected_titles)}")
+                selected_titles = [f"ID {aid} ({next(a['title'] for a in raw_assignments if a['id'] == aid)})" for aid in selected_ids]
+                st.markdown(f'<div class="selected-tag">🎯 Selected for Update: <b>{", ".join(selected_titles)}</b></div>', unsafe_allow_html=True)
 
             if st.button("Toggle Status (Completed / Incomplete)", disabled=(len(selected_ids) == 0)):
                 for aid in selected_ids:
