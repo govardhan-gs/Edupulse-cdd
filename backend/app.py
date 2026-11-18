@@ -87,7 +87,7 @@ SUBJECTS_CONFIG = {
     "Object Oriented programming Java (1BCS305)": {"credits": 3, "has_lab": False},
 
     # 6. Lab Integrated Course
-    "Data Analytics and Visualization": {"credits": 3, "has_lab": True}
+    "Data Analytics and Visualization": {"credits": 3, "has_lab": False}
 }
 
 ALL_SUBJECT_NAMES = list(SUBJECTS_CONFIG.keys())
