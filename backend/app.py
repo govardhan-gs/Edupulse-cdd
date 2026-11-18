@@ -130,10 +130,11 @@ else:
 
     st.title("🎓 Student Academic Performance & Smart Assignment Tracker")
 
-    tab1, tab2, tab3 = st.tabs([
+    tab1, tab2, tab3, tab4 = st.tabs([
         "📊 Module 1: Single Subject CIE Analyser",
         "🎯 Module 2: Semester SGPA Calculator",
-        "📝 Module 3: Smart Assignment Deadline Tracker"
+        "📝 Module 3: Smart Assignment Deadline Tracker",
+        "🌐 Client-Side HTML/JS Dashboard"
     ])
 
     # -------------------------------------------------------------
@@ -316,3 +317,14 @@ else:
                 refresh()
         else:
             st.info("No assignments recorded yet. Add your first assignment above!")
+
+    # Render the client-side dashboard from frontend/index.html.
+    with tab4:
+        st.header("🌐 Client-Side HTML/JS Dashboard (from frontend/)")
+        st.caption("Rendered directly from frontend/index.html with native Chart.js visualization.")
+
+        html_file_path = os.path.join(os.path.dirname(__file__), "..", "frontend", "index.html")
+        with open(html_file_path, "r", encoding="utf-8") as f:
+            html_content = f.read()
+
+        st.components.v1.html(html_content, height=800, scrolling=True)
