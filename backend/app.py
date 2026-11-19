@@ -707,6 +707,6 @@ else:
                         toggle_assignment_completion(aid, 0 if current_task["is_completed"] else 1)
                     st.success("Assignment status updated successfully!")
                     refresh()
-                refresh()
+                
         else:
             st.info("No assignments recorded yet. Add your first assignment above!")
