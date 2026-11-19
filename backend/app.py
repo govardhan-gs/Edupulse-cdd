@@ -384,7 +384,7 @@ if not st.session_state.user:
                 new_pwd = st.text_input("Choose Password:", type="password", placeholder="Choose a secure password")
                 if st.button("✨ Create Account", use_container_width=True):
                     if not (new_usn.startswith("4NI25CS") or new_usn.startswith("2025CS") or new_usn.startswith("4NI24CS") or new_usn.startswith("2024CS")):
-                        st.error("❌ Registration is restricted to 2025 and 2024 batch students only (USN must start with **4NI25CS**, **2025CS**, **4NI24CS**, or **2024CS**).")
+                        st.error("❌ Invalid USN. Please enter a valid USN.")
                     elif register_user(new_usn, new_name, new_pwd, semester=new_sem):
                         st.success(f"Account created for **{new_sem}**! Please switch to Login.")    
                     # if register_user(new_usn, new_name, new_pwd, semester=new_sem):
