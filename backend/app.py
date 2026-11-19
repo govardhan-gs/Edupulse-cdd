@@ -22,7 +22,8 @@ try:
         calculate_cie_detailed,
         calculate_see_needed,
         calculate_semester_sgpa,
-        get_deadline_status
+        get_deadline_status,
+        marks_to_grade_point
     )
 except ModuleNotFoundError:
     from models import (
@@ -38,7 +39,8 @@ except ModuleNotFoundError:
         calculate_cie_detailed,
         calculate_see_needed,
         calculate_semester_sgpa,
-        get_deadline_status
+        get_deadline_status,
+        marks_to_grade_point
     )
 
 init_db()
@@ -54,7 +56,6 @@ st.markdown("""
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
-    /* Ambient Rich Purple Blend Background with Soft Academic Watermark */
     .stApp {
         background-color: #0c0617 !important;
         background-image: 
@@ -67,7 +68,6 @@ st.markdown("""
         color: #f8fafc !important;
     }
 
-    /* Top Hero Header */
     .hero-banner {
         background: linear-gradient(135deg, #240e49 0%, #170733 50%, #0d041c 100%) !important;
         border: 1px solid rgba(192, 132, 252, 0.35) !important;
@@ -104,7 +104,6 @@ st.markdown("""
         letter-spacing: 0.02em !important;
     }
 
-    /* Selected Tag Pills */
     .selected-tag {
         background-color: rgba(147, 51, 234, 0.25) !important;
         color: #f3e8ff !important;
@@ -118,7 +117,6 @@ st.markdown("""
         border: 1px solid #c084fc !important;
     }
 
-    /* Sidebar Styling */
     section[data-testid="stSidebar"] {
         background-color: #120726 !important;
         border-right: 1px solid rgba(168, 85, 247, 0.3) !important;
@@ -149,7 +147,6 @@ st.markdown("""
         margin-top: 3px !important;
     }
 
-    /* VIBRANT HIGH-CONTRAST LOGOUT BUTTON */
     .logout-btn-box div.stButton > button,
     section[data-testid="stSidebar"] div.stButton > button {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
@@ -169,13 +166,7 @@ st.markdown("""
         box-shadow: 0 6px 24px rgba(239, 68, 68, 0.75) !important;
         transform: translateY(-2px) !important;
     }
-    .logout-btn-box div.stButton > button *,
-    section[data-testid="stSidebar"] div.stButton > button * {
-        color: #ffffff !important;
-        font-weight: 800 !important;
-    }
 
-    /* Container & Card Styling */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: rgba(26, 14, 48, 0.88) !important;
         border-radius: 16px !important;
@@ -185,7 +176,6 @@ st.markdown("""
         padding: 16px !important;
     }
 
-    /* Metric Cards */
     div[data-testid="stMetric"] {
         background-color: rgba(35, 17, 66, 0.9) !important;
         border: 1.5px solid rgba(192, 132, 252, 0.4) !important;
@@ -206,7 +196,6 @@ st.markdown("""
         font-size: 28px !important;
     }
 
-    /* Main Action Buttons */
     div[data-testid="stMain"] div.stButton > button,
     div[data-testid="stMain"] div.stFormSubmitButton > button {
         background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%) !important;
@@ -224,13 +213,7 @@ st.markdown("""
         transform: translateY(-2px) !important;
         box-shadow: 0 6px 24px rgba(168, 85, 247, 0.55) !important;
     }
-    div[data-testid="stMain"] div.stButton > button *,
-    div[data-testid="stMain"] div.stFormSubmitButton > button * {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-    }
 
-    /* Tabs */
     .stTabs [data-baseweb="tab-list"] {
         gap: 10px !important;
         border-bottom: 2px solid rgba(168, 85, 247, 0.35) !important;
@@ -248,34 +231,21 @@ st.markdown("""
         background: rgba(168, 85, 247, 0.22) !important;
     }
 
-    /* Text & Headings */
     h1, h2, h3, h4, p, span, label, div[data-testid="stMarkdownContainer"] p {
         color: #ffffff !important;
     }
 
-    /* Inputs - High Contrast */
     div[data-baseweb="input"] > div {
         background-color: #ffffff !important;
         border: 2px solid #a855f7 !important;
         border-radius: 8px !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
     }
     div[data-baseweb="input"] input {
         color: #0f172a !important;
         font-weight: 600 !important;
         font-size: 15px !important;
     }
-    div[data-baseweb="input"] input::placeholder {
-        color: #64748b !important;
-    }
 
-    /* Number inputs buttons */
-    div[data-baseweb="input"] button {
-        background-color: #f1f5f9 !important;
-        color: #0f172a !important;
-    }
-
-    /* Dropdowns & Popovers */
     div[data-baseweb="select"] > div {
         background-color: #1e1038 !important;
         border: 1.5px solid #a855f7 !important;
@@ -294,84 +264,59 @@ st.markdown("""
         color: #ffffff !important;
         background-color: #1e1038 !important;
     }
-    li[role="option"]:hover, li[aria-selected="true"] {
-        background-color: #3b1d6e !important;
-        color: #f3e8ff !important;
-    }
-
-    /* Alert Styling */
-    div[data-testid="stAlert"] {
-        border-radius: 12px !important;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    }
-
-    /* Slider Accents */
-    div[data-testid="stSlider"] div[role="slider"] {
-        background-color: #c084fc !important;
-        border: 2px solid #ffffff !important;
-    }
-
-    /* Radio buttons */
-    div[data-testid="stRadio"] label {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-    }
 </style>
 """, unsafe_allow_html=True)
 
 # ----------------- NIE CSE SEMESTER COURSE CATALOG -----------------
 SEMESTERS_CONFIG = {
     "1st Semester": {
-        "Applied Mathematics - I (1BMACS101A)": {"credits": 4, "has_lab": False},
-        "Applied Physics (1BPHCS102)": {"credits": 3, "has_lab": False},
-        "Computer-Aided Engineering Drawing - CAED (1BCEDCS103)": {"credits": 3, "has_lab": True},
-        "Introduction to Electronics & Communication (1BESC104G)": {"credits": 3, "has_lab": False},
-        "Programming in C (1BEIT105)": {"credits": 3, "has_lab": False},
-        "C Programming Lab (1BPOPL107)": {"credits": 1, "has_lab": True},
-        "Applied Physics Laboratory (1BPHCSL102)": {"credits": 1, "has_lab": True},
-        "Samskrutika / Balake Kannada (1BKSK109)": {"credits": 1, "has_lab": False},
-        "Interdisciplinary Project Based Learning - IPBL (1BPRJ158)": {"credits": 1, "has_lab": True},
+        "Applied Mathematics - I (1BMACS101A)": {"credits": 4, "has_lab": False, "eval_type": "standard"},
+        "Applied Physics for CSE (1BPHCS102)": {"credits": 4, "has_lab": True, "eval_type": "standard"},
+        "Computer-Aided Engineering Drawing - CAED (1BCEDCS103)": {"credits": 3, "has_lab": True, "eval_type": "standard"},
+        "Introduction to Electronics & Communication (1BESC104G)": {"credits": 3, "has_lab": False, "eval_type": "standard"},
+        "Programming in C (1BEIT105)": {"credits": 4, "has_lab": True, "eval_type": "standard"},
+        "Samskruthika / Balake Kannada (1BKSK109)": {"credits": 1, "has_lab": False, "eval_type": "kannada"},
+        "Interdisciplinary Project Based Learning - IPBL (1BPRJ158)": {"credits": 1, "has_lab": False, "eval_type": "ipbl"},
     },
     "2nd Semester": {
-        "Applied Mathematics - II (1BMACS201)": {"credits": 4, "has_lab": False},
-        "Applied Chemistry for CSE (1BCHCS202)": {"credits": 3, "has_lab": False},
-        "Introduction to AI and Applications (1BAIA203)": {"credits": 3, "has_lab": False},
-        "Introduction to Mechanical Engineering (1BESC204D)": {"credits": 3, "has_lab": False},
-        "Python Programming (1BPLC205B)": {"credits": 3, "has_lab": False},
-        "Communication Skills (1BENGL206)": {"credits": 1, "has_lab": False},
-        "Python Programming Lab (1BPOPL209B)": {"credits": 1, "has_lab": True},
-        "Applied Chemistry Laboratory (1BCHCSL202)": {"credits": 1, "has_lab": True},
-        "Innovation and Design Thinking Lab (1BIDTL258)": {"credits": 1, "has_lab": True},
+        "Applied Mathematics - II (1BMACS201)": {"credits": 4, "has_lab": False, "eval_type": "standard"},
+        "Applied Chemistry for CSE (1BCHCS202)": {"credits": 3, "has_lab": False, "eval_type": "standard"},
+        "Introduction to AI and Applications (1BAIA203)": {"credits": 3, "has_lab": False, "eval_type": "standard"},
+        "Introduction to Mechanical Engineering (1BESC204D)": {"credits": 3, "has_lab": False, "eval_type": "standard"},
+        "Python Programming (1BPLC205B)": {"credits": 3, "has_lab": False, "eval_type": "standard"},
+        "Communication Skills (1BENGL206)": {"credits": 1, "has_lab": False, "eval_type": "standard"},
+        "Python Programming Lab (1BPOPL209B)": {"credits": 1, "has_lab": True, "eval_type": "standard"},
+        "Applied Chemistry Laboratory (1BCHCSL202)": {"credits": 1, "has_lab": True, "eval_type": "standard"},
+        "Innovation and Design Thinking Lab (1BIDTL258)": {"credits": 1, "has_lab": True, "eval_type": "standard"},
     },
     "3rd Semester": {
-        "Applied Mathematics-III (1BMAT301)": {"credits": 3, "has_lab": False},
-        "DDCO (1BCS302)": {"credits": 4, "has_lab": True},
-        "Collaborative development and devops (1BCS303)": {"credits": 4, "has_lab": False},
-        "Data structures and application (1BCS304)": {"credits": 4, "has_lab": True},
-        "Object Oriented programming Java (1BCS305)": {"credits": 3, "has_lab": False},
-        "Data Analytics and Visualization": {"credits": 3, "has_lab": False},
+        "Applied Mathematics-III (1BMAT301)": {"credits": 3, "has_lab": False, "eval_type": "standard"},
+        "DDCO (1BCS302)": {"credits": 4, "has_lab": True, "eval_type": "standard"},
+        "Collaborative development and devops (1BCS303)": {"credits": 4, "has_lab": False, "eval_type": "standard"},
+        "Data structures and application (1BCS304)": {"credits": 4, "has_lab": True, "eval_type": "standard"},
+        "Object Oriented programming Java (1BCS305)": {"credits": 3, "has_lab": False, "eval_type": "standard"},
+        "Data Analytics and Visualization": {"credits": 3, "has_lab": False, "eval_type": "standard"},
     },
     "4th Semester": {
-        "Analysis & Design of Algorithms (BCS401)": {"credits": 3, "has_lab": False},
-        "Microcontrollers (BCS402)": {"credits": 4, "has_lab": True},
-        "Database Management Systems (BCS403)": {"credits": 4, "has_lab": True},
-        "ESC – Discrete Mathematical Structures (BCS405A)": {"credits": 3, "has_lab": False},
-        "AEC – UI/UX Lab (BCS456C)": {"credits": 1, "has_lab": True},
-        "Analysis & Design of Algorithms Lab (BCSL404)": {"credits": 1, "has_lab": True},
-        "Biology for Engineering (BBOC407)": {"credits": 2, "has_lab": False},
-        "Universal Human Values and Ethics (BUHK408)": {"credits": 1, "has_lab": False},
+        "Analysis & Design of Algorithms (BCS401)": {"credits": 3, "has_lab": False, "eval_type": "standard"},
+        "Microcontrollers (BCS402)": {"credits": 4, "has_lab": True, "eval_type": "standard"},
+        "Database Management Systems (BCS403)": {"credits": 4, "has_lab": True, "eval_type": "standard"},
+        "ESC – Discrete Mathematical Structures (BCS405A)": {"credits": 3, "has_lab": False, "eval_type": "standard"},
+        "AEC – UI/UX Lab (BCS456C)": {"credits": 1, "has_lab": True, "eval_type": "standard"},
+        "Analysis & Design of Algorithms Lab (BCSL404)": {"credits": 1, "has_lab": True, "eval_type": "standard"},
+        "Biology for Engineering (BBOC407)": {"credits": 2, "has_lab": False, "eval_type": "standard"},
+        "Universal Human Values and Ethics (BUHK408)": {"credits": 1, "has_lab": False, "eval_type": "standard"},
     },
     "6th Semester": {
-        "Internet of Things (BCS601)": {"credits": 4, "has_lab": True},
-        "Machine Learning (BCS602)": {"credits": 3, "has_lab": False},
-        "Professional Elective (BCS613x)": {"credits": 3, "has_lab": False},
-        "Open Elective Course - Group I (BCS654x)": {"credits": 3, "has_lab": False},
-        "Cloud Computing (BCS605)": {"credits": 4, "has_lab": False},
-        "Distributed Systems (BCS606)": {"credits": 3, "has_lab": False},
-        "AEC – DevOps (BCS657D)": {"credits": 2, "has_lab": True},
-        "Machine Learning Lab (BCSL607)": {"credits": 1, "has_lab": True},
-        "Indian Knowledge Systems (BIKK259)": {"credits": 1, "has_lab": False},
+        "Internet of Things (BCS601)": {"credits": 4, "has_lab": True, "eval_type": "standard"},
+        "Machine Learning (BCS602)": {"credits": 3, "has_lab": False, "eval_type": "standard"},
+        "Professional Elective (BCS613x)": {"credits": 3, "has_lab": False, "eval_type": "standard"},
+        "Open Elective Course - Group I (BCS654x)": {"credits": 3, "has_lab": False, "eval_type": "standard"},
+        "Cloud Computing (BCS605)": {"credits": 4, "has_lab": False, "eval_type": "standard"},
+        "Distributed Systems (BCS606)": {"credits": 3, "has_lab": False, "eval_type": "standard"},
+        "AEC – DevOps (BCS657D)": {"credits": 2, "has_lab": True, "eval_type": "standard"},
+        "Machine Learning Lab (BCSL607)": {"credits": 1, "has_lab": True, "eval_type": "standard"},
+        "Indian Knowledge Systems (BIKK259)": {"credits": 1, "has_lab": False, "eval_type": "standard"},
     }
 }
 
@@ -379,7 +324,7 @@ if "user" not in st.session_state:
     st.session_state.user = None
 
 if "semester" not in st.session_state:
-    st.session_state.semester = "4th Semester"
+    st.session_state.semester = "1st Semester"
 
 def refresh():
     if hasattr(st, "rerun"): st.rerun()
@@ -403,25 +348,22 @@ if not st.session_state.user:
             mode = st.radio("Choose Mode:", ["Login", "Register"], horizontal=True)
             if mode == "Login":
                 st.markdown("<h2 style='color: #ffffff; margin-bottom: 4px;'>🔑 Student Login</h2>", unsafe_allow_html=True)
-                st.caption("Enter your university seat number, account password, and select your registered semester.")
+                st.caption("Enter your USN, password, and select your registered semester.")
                 usn_input = st.text_input("USN (University Seat Number):", placeholder="e.g. 4NI23CS001").strip().upper()
                 pwd_input = st.text_input("Password:", type="password", placeholder="Enter your password")
                 
-                # --- SEMESTER DROPDOWN IN LOGIN WINDOW ---
                 login_sem = st.selectbox(
                     "Select Your Semester:",
                     options=list(SEMESTERS_CONFIG.keys()),
-                    index=2,  # defaults to 3rd Semester
+                    index=0,
                     key="login_sem_select"
                 )
                 
                 if st.button("🚀 Log In to Dashboard", use_container_width=True):
                     if authenticate_user(usn_input, pwd_input):
                         registered_sem = get_user_semester(usn_input)
-                        
-                        # Check if selected semester matches registration
                         if registered_sem and registered_sem != login_sem:
-                            st.error(f"❌ **Semester Mismatch:** Your account is registered under **{registered_sem}**. Please select **{registered_sem}** from the dropdown to log in.")
+                            st.error(f"❌ **Semester Mismatch:** Your account is registered under **{registered_sem}**. Please select **{registered_sem}** to log in.")
                         else:
                             st.session_state.user = usn_input
                             st.session_state.semester = registered_sem if registered_sem else login_sem
@@ -430,13 +372,13 @@ if not st.session_state.user:
                         st.error("Invalid USN or Password.")
             else:
                 st.markdown("<h2 style='color: #ffffff; margin-bottom: 4px;'>📝 Student Registration</h2>", unsafe_allow_html=True)
-                st.caption("Create a new student profile. The semester you choose here is permanent.")
+                st.caption("Create a new student profile.")
                 new_usn = st.text_input("USN (University Seat Number):", placeholder="e.g. 4NI23CS042").strip().upper()
                 new_name = st.text_input("Full Name:", placeholder="e.g. John Doe")
                 new_sem = st.selectbox(
-                    "Select Your Semester (locked after registration):",
+                    "Select Your Semester:",
                     options=list(SEMESTERS_CONFIG.keys()),
-                    index=2,
+                    index=0,
                     key="register_sem_select"
                 )
                 new_pwd = st.text_input("Choose Password:", type="password", placeholder="Choose a secure password")
@@ -457,9 +399,9 @@ if not st.session_state.user:
 
 # ----------------- MAIN DASHBOARD -----------------
 else:
-    active_sem = st.session_state.get("semester", "3rd Semester")
+    active_sem = st.session_state.get("semester", "1st Semester")
     if active_sem not in SEMESTERS_CONFIG:
-        active_sem = "3rd Semester"
+        active_sem = "1st Semester"
         st.session_state.semester = active_sem
 
     st.sidebar.markdown(f"""
@@ -509,8 +451,15 @@ else:
 
         sub_select = st.selectbox("Select Subject:", ALL_SUBJECT_NAMES, key="single_sub_select")
         cfg = SUBJECTS_CONFIG[sub_select]
+        eval_type = cfg.get("eval_type", "standard")
 
-        course_type = "🔬 Integrated with Lab" if cfg["has_lab"] else "📖 Theory Course"
+        if eval_type == "kannada":
+            course_type = "📖 Non-SEE Course (Quiz + Assignment Only)"
+        elif eval_type == "ipbl":
+            course_type = "🔬 Continuous Project Evaluation (30 Marks Only)"
+        else:
+            course_type = "🔬 Integrated with Lab" if cfg["has_lab"] else "📖 Theory Course"
+
         st.markdown(f"""
         <div class="selected-tag">
             👉 Selected: <b>{sub_select}</b> | Credits: <b>{cfg['credits']}</b> | Type: <b>{course_type}</b>
@@ -521,18 +470,50 @@ else:
         with col1:
             with st.container(border=True):
                 st.subheader("Component Marks Input")
-                st.caption("CIE Total (100) = Test-1 (25) + Test-2 (25) + Quiz (20) + Lab/Assignment (30)")
+                
+                # SPECIAL HANDLING FOR SAMSKRUTHIKA KANNADA
+                if eval_type == "kannada":
+                    st.info("ℹ️ **Kannada Evaluation:** Evaluated for 50 Marks (Quiz 20 + Assignment 30). No Tests or SEE.")
+                    k_quiz = st.slider("Quiz Marks (Max 20):", 0.0, 20.0, 16.0, step=0.5, key="k_quiz_single")
+                    k_assign = st.slider("Assignment Marks (Max 30):", 0.0, 30.0, 25.0, step=0.5, key="k_assign_single")
+                    k_total = k_quiz + k_assign
+                    cie_data = {
+                        "tests_total": 0.0,
+                        "cie_100": k_total * 2,
+                        "cie_50": k_total,
+                        "cond1_passed": True,
+                        "cond2_passed": k_total >= 20.0,
+                        "is_eligible": k_total >= 20.0
+                    }
 
-                t1 = st.slider("Test-1 Marks (Max 25):", 0.0, 25.0, 18.0, step=0.5, key="t1_single")
-                t2 = st.slider("Test-2 Marks (Max 25):", 0.0, 25.0, 19.0, step=0.5, key="t2_single")
-                quiz = st.slider("Single Quiz Marks (Max 20):", 0.0, 20.0, 15.0, step=0.5, key="quiz_single")
+                # SPECIAL HANDLING FOR IPBL
+                elif eval_type == "ipbl":
+                    st.info("ℹ️ **IPBL Evaluation:** Continuous Project Assignment (30 Marks). No Tests, Quiz, or SEE.")
+                    ipbl_assign = st.slider("Project Assignment (Max 30):", 0.0, 30.0, 24.0, step=0.5, key="ipbl_single")
+                    ipbl_scaled_100 = round((ipbl_assign / 30.0) * 100, 1)
+                    ipbl_scaled_50 = round(ipbl_scaled_100 / 2.0, 1)
+                    cie_data = {
+                        "tests_total": 0.0,
+                        "cie_100": ipbl_scaled_100,
+                        "cie_50": ipbl_scaled_50,
+                        "cond1_passed": True,
+                        "cond2_passed": ipbl_assign >= 12.0,
+                        "is_eligible": ipbl_assign >= 12.0
+                    }
 
-                if cfg["has_lab"]:
-                    lab_assign = st.slider("Lab Continuous Evaluation (Max 30):", 0.0, 30.0, 25.0, step=0.5, key="lab_single")
+                # STANDARD SUBJECTS
                 else:
-                    lab_assign = st.slider("Assignment Evaluation (Max 30):", 0.0, 30.0, 25.0, step=0.5, key="assign_single")
+                    st.caption("CIE Total (100) = Test-1 (25) + Test-2 (25) + Quiz (20) + Lab/Assignment (30)")
+                    t1 = st.slider("Test-1 Marks (Max 25):", 0.0, 25.0, 18.0, step=0.5, key="t1_single")
+                    t2 = st.slider("Test-2 Marks (Max 25):", 0.0, 25.0, 19.0, step=0.5, key="t2_single")
+                    quiz = st.slider("Single Quiz Marks (Max 20):", 0.0, 20.0, 15.0, step=0.5, key="quiz_single")
 
-                cie_data = calculate_cie_detailed(t1, t2, quiz, lab_assign, is_lab=cfg["has_lab"])
+                    if cfg["has_lab"]:
+                        lab_assign = st.slider("Lab Continuous Evaluation (Max 30):", 0.0, 30.0, 25.0, step=0.5, key="lab_single")
+                    else:
+                        lab_assign = st.slider("Assignment Evaluation (Max 30):", 0.0, 30.0, 25.0, step=0.5, key="assign_single")
+
+                    cie_data = calculate_cie_detailed(t1, t2, quiz, lab_assign, is_lab=cfg["has_lab"])
 
         with col2:
             with st.container(border=True):
@@ -542,43 +523,46 @@ else:
                 c_score1.metric("Total CIE (Out of 100)", f"{cie_data['cie_100']} / 100")
                 c_score2.metric("Scaled CIE (Out of 50)", f"{cie_data['cie_50']} / 50")
 
-                st.markdown("#### 📋 SEE Eligibility Status:")
+                st.markdown("#### 📋 Eligibility Status:")
 
-                # Condition 1 Check
-                if cie_data["cond1_passed"]:
-                    st.success(f"✅ **Condition 1 Met:** Test-1 + Test-2 = **{cie_data['tests_total']} / 50** (Minimum 20 required).")
+                if eval_type in ["kannada", "ipbl"]:
+                    if cie_data["is_eligible"]:
+                        st.success(f"✅ **Passed Course Requirements:** Scored **{cie_data['cie_50']} / 50** (Minimum 40% cutoff met).")
+                    else:
+                        st.error(f"❌ **Below Passing Cutoff:** Scored **{cie_data['cie_50']} / 50** (Need at least 20/50 to pass).")
                 else:
-                    st.error(f"❌ **Condition 1 Failed:** Test-1 + Test-2 = **{cie_data['tests_total']} / 50** (Must score ≥ 20 marks across tests).")
+                    if cie_data["cond1_passed"]:
+                        st.success(f"✅ **Condition 1 Met:** Test-1 + Test-2 = **{cie_data['tests_total']} / 50** (Minimum 20 required).")
+                    else:
+                        st.error(f"❌ **Condition 1 Failed:** Test-1 + Test-2 = **{cie_data['tests_total']} / 50** (Must score ≥ 20 marks across tests).")
 
-                # Condition 2 Check
-                if cie_data["cond2_passed"]:
-                    st.success(f"✅ **Condition 2 Met:** Overall CIE = **{cie_data['cie_100']} / 100** ({cie_data['cie_50']} / 50, satisfies 40% cutoff).")
-                else:
-                    st.error(f"❌ **Condition 2 Failed:** Overall CIE = **{cie_data['cie_100']} / 100** (Must score ≥ 40% across all components).")
+                    if cie_data["cond2_passed"]:
+                        st.success(f"✅ **Condition 2 Met:** Overall CIE = **{cie_data['cie_100']} / 100** ({cie_data['cie_50']} / 50, satisfies 40% cutoff).")
+                    else:
+                        st.error(f"❌ **Condition 2 Failed:** Overall CIE = **{cie_data['cie_100']} / 100** (Must score ≥ 40% across all components).")
 
-                # Final Eligibility Outcome
-                if cie_data["is_eligible"]:
-                    st.success(f"🎉 **Eligible to appear for Semester End Examination (SEE) in {sub_select}!**")
-                else:
-                    st.error(f"🚫 **Barred from SEE in {sub_select} until eligibility criteria are met!**")
+                    if cie_data["is_eligible"]:
+                        st.success(f"🎉 **Eligible to appear for Semester End Examination (SEE) in {sub_select}!**")
+                    else:
+                        st.error(f"🚫 **Barred from SEE in {sub_select} until eligibility criteria are met!**")
 
-                st.markdown("---")
-                st.subheader("🎯 SEE Target Predictor")
-                target_grade = st.selectbox("Target Grade:", ["S / O (90%+)", "A (80%+)", "B (70%+)", "Pass (40%+)"], key="target_grade_select")
-                st.markdown(f'<div class="selected-tag">🎯 Goal: <b>{target_grade}</b></div>', unsafe_allow_html=True)
+                    st.markdown("---")
+                    st.subheader("🎯 SEE Target Predictor")
+                    target_grade = st.selectbox("Target Grade:", ["S / O (90%+)", "A (80%+)", "B (70%+)", "Pass (40%+)"], key="target_grade_select")
+                    st.markdown(f'<div class="selected-tag">🎯 Goal: <b>{target_grade}</b></div>', unsafe_allow_html=True)
 
-                needed_see = calculate_see_needed(cie_data["cie_50"], target_grade)
-                if needed_see <= 100:
-                    st.info(f"To achieve **{target_grade}**, you must score at least **{needed_see} / 100** in SEE (which scales to **{needed_see/2:.1f}/50**).")
-                else:
-                    st.warning("Mathematically unreachable: Current CIE requires more than 100/100 in SEE.")
+                    needed_see = calculate_see_needed(cie_data["cie_50"], target_grade)
+                    if needed_see <= 100:
+                        st.info(f"To achieve **{target_grade}**, you must score at least **{needed_see} / 100** in SEE (which scales to **{needed_see/2:.1f}/50**).")
+                    else:
+                        st.warning("Mathematically unreachable: Current CIE requires more than 100/100 in SEE.")
 
     # -------------------------------------------------------------
     # TAB 2: DETAILED SEMESTER SGPA CALCULATOR
     # -------------------------------------------------------------
     with tab2:
         st.header(f"🎯 Precise Semester SGPA Calculator ({active_sem})")
-        st.caption("Marks Breakdown: Test-1 (25) + Test-2 (25) + Quiz (20) + Lab/Assignment (30) = Total 100 (Scaled down to 50). SEE 100 marks scaled down to 50.")
+        st.caption("Standard courses: Test-1 (25) + Test-2 (25) + Quiz (20) + Lab/Assignment (30) + SEE (100 scaled to 50). Non-SEE courses evaluated on 100% CIE.")
 
         subject_inputs = []
         sem_slug = active_sem.replace(" ", "_").lower()
@@ -586,41 +570,74 @@ else:
         grid_cols = st.columns(2)
         for idx, (s_name, s_info) in enumerate(SUBJECTS_CONFIG.items()):
             col_target = grid_cols[idx % 2]
+            eval_type = s_info.get("eval_type", "standard")
             
             with col_target:
                 with st.container(border=True):
-                    type_badge = "🔬 Lab Subject" if s_info["has_lab"] else "📖 Non-Lab Subject"
+                    if eval_type == "kannada":
+                        type_badge = "📖 Non-SEE (Quiz 20 + Assignment 30)"
+                    elif eval_type == "ipbl":
+                        type_badge = "🔬 Non-SEE (Project 30 Marks)"
+                    else:
+                        type_badge = "🔬 Lab Subject" if s_info["has_lab"] else "📖 Non-Lab Subject"
+
                     st.markdown(f"### {s_name}")
                     st.caption(f"**Credits:** `{s_info['credits']}` | **Type:** `{type_badge}`")
 
-                    c1, c2, c3 = st.columns(3)
-                    t1_val = c1.number_input("Test-1 (25)", min_value=0.0, max_value=25.0, value=20.0, step=0.5, key=f"t1_{sem_slug}_{idx}")
-                    t2_val = c2.number_input("Test-2 (25)", min_value=0.0, max_value=25.0, value=20.0, step=0.5, key=f"t2_{sem_slug}_{idx}")
-                    quiz_val = c3.number_input("Quiz (20)", min_value=0.0, max_value=20.0, value=16.0, step=0.5, key=f"quiz_{sem_slug}_{idx}")
+                    # KANNADA INPUTS IN SGPA
+                    if eval_type == "kannada":
+                        c1, c2 = st.columns(2)
+                        k_q = c1.number_input("Quiz (20)", min_value=0.0, max_value=20.0, value=16.0, step=0.5, key=f"kq_{sem_slug}_{idx}")
+                        k_a = c2.number_input("Assignment (30)", min_value=0.0, max_value=30.0, value=25.0, step=0.5, key=f"ka_{sem_slug}_{idx}")
+                        final_100 = (k_q + k_a) * 2
+                        st.markdown(f"📊 **CIE (50):** `{k_q + k_a}` &nbsp;|&nbsp; **Final Score:** `{final_100}/100` *(100% CIE Based)*")
+                        subject_inputs.append({
+                            "name": s_name,
+                            "credits": s_info["credits"],
+                            "cie_50": k_q + k_a,
+                            "see_100": (k_q + k_a) * 2
+                        })
 
-                    c4, c5 = st.columns(2)
-                    if s_info["has_lab"]:
-                        lab_or_assign_val = c4.number_input("Lab Marks (30)", min_value=0.0, max_value=30.0, value=25.0, step=0.5, key=f"lab_{sem_slug}_{idx}")
+                    # IPBL INPUTS IN SGPA
+                    elif eval_type == "ipbl":
+                        ipbl_p = st.number_input("Project Assignment (30)", min_value=0.0, max_value=30.0, value=24.0, step=0.5, key=f"ipbl_{sem_slug}_{idx}")
+                        final_100 = round((ipbl_p / 30.0) * 100, 1)
+                        st.markdown(f"📊 **Score (30):** `{ipbl_p}` &nbsp;|&nbsp; **Final Score:** `{final_100}/100` *(Continuous Project)*")
+                        subject_inputs.append({
+                            "name": s_name,
+                            "credits": s_info["credits"],
+                            "cie_50": round(final_100 / 2.0, 1),
+                            "see_100": final_100
+                        })
+
+                    # STANDARD COURSE INPUTS
                     else:
-                        lab_or_assign_val = c4.number_input("Assignment (30)", min_value=0.0, max_value=30.0, value=25.0, step=0.5, key=f"assign_{sem_slug}_{idx}")
+                        c1, c2, c3 = st.columns(3)
+                        t1_val = c1.number_input("Test-1 (25)", min_value=0.0, max_value=25.0, value=20.0, step=0.5, key=f"t1_{sem_slug}_{idx}")
+                        t2_val = c2.number_input("Test-2 (25)", min_value=0.0, max_value=25.0, value=20.0, step=0.5, key=f"t2_{sem_slug}_{idx}")
+                        quiz_val = c3.number_input("Quiz (20)", min_value=0.0, max_value=20.0, value=16.0, step=0.5, key=f"quiz_{sem_slug}_{idx}")
 
-                    see_val = c5.number_input("Expected SEE (100)", min_value=0.0, max_value=100.0, value=80.0, step=1.0, key=f"see_{sem_slug}_{idx}")
+                        c4, c5 = st.columns(2)
+                        if s_info["has_lab"]:
+                            lab_or_assign_val = c4.number_input("Lab Marks (30)", min_value=0.0, max_value=30.0, value=25.0, step=0.5, key=f"lab_{sem_slug}_{idx}")
+                        else:
+                            lab_or_assign_val = c4.number_input("Assignment (30)", min_value=0.0, max_value=30.0, value=25.0, step=0.5, key=f"assign_{sem_slug}_{idx}")
 
-                    # Calculate CIE 100 -> 50
-                    cie_calc = calculate_cie_detailed(t1_val, t2_val, quiz_val, lab_or_assign_val, is_lab=s_info["has_lab"])
-                    see_scaled_50 = see_val / 2.0
-                    course_final_100 = cie_calc["cie_50"] + see_scaled_50
+                        see_val = c5.number_input("Expected SEE (100)", min_value=0.0, max_value=100.0, value=80.0, step=1.0, key=f"see_{sem_slug}_{idx}")
 
-                    st.markdown(f"📊 **CIE (100):** `{cie_calc['cie_100']}` &nbsp;|&nbsp; **CIE (50):** `{cie_calc['cie_50']}` &nbsp;|&nbsp; **SEE (50):** `{see_scaled_50}` &nbsp;|&nbsp; **Final:** `{course_final_100}/100`")
+                        cie_calc = calculate_cie_detailed(t1_val, t2_val, quiz_val, lab_or_assign_val, is_lab=s_info["has_lab"])
+                        see_scaled_50 = see_val / 2.0
+                        course_final_100 = cie_calc["cie_50"] + see_scaled_50
 
-                    subject_inputs.append({
-                        "name": s_name,
-                        "credits": s_info["credits"],
-                        "cie_50": cie_calc["cie_50"],
-                        "see_100": see_val
-                    })
+                        st.markdown(f"📊 **CIE (100):** `{cie_calc['cie_100']}` &nbsp;|&nbsp; **CIE (50):** `{cie_calc['cie_50']}` &nbsp;|&nbsp; **SEE (50):** `{see_scaled_50}` &nbsp;|&nbsp; **Final:** `{course_final_100}/100`")
 
-        # Calculate Overall SGPA
+                        subject_inputs.append({
+                            "name": s_name,
+                            "credits": s_info["credits"],
+                            "cie_50": cie_calc["cie_50"],
+                            "see_100": see_val
+                        })
+
         sgpa_res = calculate_semester_sgpa(subject_inputs)
 
         st.subheader("📈 Overall Semester SGPA & Grade Sheet")
@@ -707,6 +724,5 @@ else:
                         toggle_assignment_completion(aid, 0 if current_task["is_completed"] else 1)
                     st.success("Assignment status updated successfully!")
                     refresh()
-                
         else:
             st.info("No assignments recorded yet. Add your first assignment above!")
