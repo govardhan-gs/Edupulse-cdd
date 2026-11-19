@@ -169,7 +169,8 @@ st.markdown("""
         box-shadow: 0 6px 24px rgba(239, 68, 68, 0.75) !important;
         transform: translateY(-2px) !important;
     }
-    .logout-btn-box div.stButton > button * {
+    .logout-btn-box div.stButton > button *,
+    section[data-testid="stSidebar"] div.stButton > button * {
         color: #ffffff !important;
         font-weight: 800 !important;
     }
@@ -402,14 +403,29 @@ if not st.session_state.user:
             mode = st.radio("Choose Mode:", ["Login", "Register"], horizontal=True)
             if mode == "Login":
                 st.markdown("<h2 style='color: #ffffff; margin-bottom: 4px;'>🔑 Student Login</h2>", unsafe_allow_html=True)
-                st.caption("Enter your university seat number and account password. Your semester is locked to what you registered with.")
+                st.caption("Enter your university seat number, account password, and select your registered semester.")
                 usn_input = st.text_input("USN (University Seat Number):", placeholder="e.g. 4NI23CS001").strip().upper()
                 pwd_input = st.text_input("Password:", type="password", placeholder="Enter your password")
+                
+                # --- SEMESTER DROPDOWN IN LOGIN WINDOW ---
+                login_sem = st.selectbox(
+                    "Select Your Semester:",
+                    options=list(SEMESTERS_CONFIG.keys()),
+                    index=2,  # defaults to 3rd Semester
+                    key="login_sem_select"
+                )
+                
                 if st.button("🚀 Log In to Dashboard", use_container_width=True):
                     if authenticate_user(usn_input, pwd_input):
-                        st.session_state.user = usn_input
-                        st.session_state.semester = get_user_semester(usn_input)
-                        refresh()
+                        registered_sem = get_user_semester(usn_input)
+                        
+                        # Check if selected semester matches registration
+                        if registered_sem and registered_sem != login_sem:
+                            st.error(f"❌ **Semester Mismatch:** Your account is registered under **{registered_sem}**. Please select **{registered_sem}** from the dropdown to log in.")
+                        else:
+                            st.session_state.user = usn_input
+                            st.session_state.semester = registered_sem if registered_sem else login_sem
+                            refresh()
                     else:
                         st.error("Invalid USN or Password.")
             else:
@@ -420,7 +436,7 @@ if not st.session_state.user:
                 new_sem = st.selectbox(
                     "Select Your Semester (locked after registration):",
                     options=list(SEMESTERS_CONFIG.keys()),
-                    index=3,
+                    index=2,
                     key="register_sem_select"
                 )
                 new_pwd = st.text_input("Choose Password:", type="password", placeholder="Choose a secure password")
@@ -441,9 +457,9 @@ if not st.session_state.user:
 
 # ----------------- MAIN DASHBOARD -----------------
 else:
-    active_sem = st.session_state.get("semester", "4th Semester")
+    active_sem = st.session_state.get("semester", "3rd Semester")
     if active_sem not in SEMESTERS_CONFIG:
-        active_sem = "4th Semester"
+        active_sem = "3rd Semester"
         st.session_state.semester = active_sem
 
     st.sidebar.markdown(f"""
@@ -454,7 +470,7 @@ else:
     <div class="user-card">
         <div class="user-card-label">Authenticated Student</div>
         <div class="user-card-usn">🎓 {st.session_state.user}</div>
-        <div style="color: #c084fc; font-size: 13px; font-weight: 700; margin-top: 6px;">📚 {active_sem} (Locked)</div>
+        <div style="color: #c084fc; font-size: 13px; font-weight: 700; margin-top: 6px;">📚 {active_sem}</div>
     </div>
     """, unsafe_allow_html=True)
 
