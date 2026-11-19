@@ -15,7 +15,8 @@ try:
         authenticate_user,
         add_assignment,
         get_user_assignments,
-        toggle_assignment_completion
+        toggle_assignment_completion,
+        get_user_semester
     )
     from backend.utils import (
         calculate_cie_detailed,
@@ -30,7 +31,8 @@ except ModuleNotFoundError:
         authenticate_user,
         add_assignment,
         get_user_assignments,
-        toggle_assignment_completion
+        toggle_assignment_completion,
+        get_user_semester
     )
     from utils import (
         calculate_cie_detailed,
@@ -272,7 +274,7 @@ st.markdown("""
         color: #0f172a !important;
     }
 
-    /* Dropdowns */
+    /* Dropdowns & Popovers */
     div[data-baseweb="select"] > div {
         background-color: #1e1038 !important;
         border: 1.5px solid #a855f7 !important;
@@ -281,6 +283,19 @@ st.markdown("""
     div[data-baseweb="select"] * {
         color: #ffffff !important;
         font-weight: 600 !important;
+    }
+    div[data-baseweb="popover"], div[data-baseweb="menu"], ul[data-baseweb="menu"] {
+        background-color: #1e1038 !important;
+        color: #ffffff !important;
+        border: 1px solid #a855f7 !important;
+    }
+    li[role="option"] {
+        color: #ffffff !important;
+        background-color: #1e1038 !important;
+    }
+    li[role="option"]:hover, li[aria-selected="true"] {
+        background-color: #3b1d6e !important;
+        color: #f3e8ff !important;
     }
 
     /* Alert Styling */
@@ -304,31 +319,66 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ----------------- SEMESTER 3 COURSE DEFINITION -----------------
-SUBJECTS_CONFIG = {
-    # 1. Theory Course (Updated to 3 credits)
-    "Applied Mathematics-III (1BMAT301)": {"credits": 3, "has_lab": False},
-
-    # 2. Lab Integrated Course
-    "DDCO (1BCS302)": {"credits": 4, "has_lab": True},
-
-    # 3. Theory Course (CDD)
-    "Collaborative development and devops (1BCS303)": {"credits": 4, "has_lab": False},
-
-    # 4. Lab Integrated Course
-    "Data structures and application (1BCS304)": {"credits": 4, "has_lab": True},
-
-    # 5. Theory Course
-    "Object Oriented programming Java (1BCS305)": {"credits": 3, "has_lab": False},
-
-    # 6. Lab Integrated Course
-    "Data Analytics and Visualization": {"credits": 3, "has_lab": False}
+# ----------------- NIE CSE SEMESTER COURSE CATALOG -----------------
+SEMESTERS_CONFIG = {
+    "1st Semester": {
+        "Applied Mathematics - I (1BMACS101A)": {"credits": 4, "has_lab": False},
+        "Applied Physics (1BPHCS102)": {"credits": 3, "has_lab": False},
+        "Computer-Aided Engineering Drawing - CAED (1BCEDCS103)": {"credits": 3, "has_lab": True},
+        "Introduction to Electronics & Communication (1BESC104G)": {"credits": 3, "has_lab": False},
+        "Programming in C (1BEIT105)": {"credits": 3, "has_lab": False},
+        "C Programming Lab (1BPOPL107)": {"credits": 1, "has_lab": True},
+        "Applied Physics Laboratory (1BPHCSL102)": {"credits": 1, "has_lab": True},
+        "Samskrutika / Balake Kannada (1BKSK109)": {"credits": 1, "has_lab": False},
+        "Interdisciplinary Project Based Learning - IPBL (1BPRJ158)": {"credits": 1, "has_lab": True},
+    },
+    "2nd Semester": {
+        "Applied Mathematics - II (1BMACS201)": {"credits": 4, "has_lab": False},
+        "Applied Chemistry for CSE (1BCHCS202)": {"credits": 3, "has_lab": False},
+        "Introduction to AI and Applications (1BAIA203)": {"credits": 3, "has_lab": False},
+        "Introduction to Mechanical Engineering (1BESC204D)": {"credits": 3, "has_lab": False},
+        "Python Programming (1BPLC205B)": {"credits": 3, "has_lab": False},
+        "Communication Skills (1BENGL206)": {"credits": 1, "has_lab": False},
+        "Python Programming Lab (1BPOPL209B)": {"credits": 1, "has_lab": True},
+        "Applied Chemistry Laboratory (1BCHCSL202)": {"credits": 1, "has_lab": True},
+        "Innovation and Design Thinking Lab (1BIDTL258)": {"credits": 1, "has_lab": True},
+    },
+    "3rd Semester": {
+        "Applied Mathematics-III (1BMAT301)": {"credits": 3, "has_lab": False},
+        "DDCO (1BCS302)": {"credits": 4, "has_lab": True},
+        "Collaborative development and devops (1BCS303)": {"credits": 4, "has_lab": False},
+        "Data structures and application (1BCS304)": {"credits": 4, "has_lab": True},
+        "Object Oriented programming Java (1BCS305)": {"credits": 3, "has_lab": False},
+        "Data Analytics and Visualization": {"credits": 3, "has_lab": False},
+    },
+    "4th Semester": {
+        "Analysis & Design of Algorithms (BCS401)": {"credits": 3, "has_lab": False},
+        "Microcontrollers (BCS402)": {"credits": 4, "has_lab": True},
+        "Database Management Systems (BCS403)": {"credits": 4, "has_lab": True},
+        "ESC – Discrete Mathematical Structures (BCS405A)": {"credits": 3, "has_lab": False},
+        "AEC – UI/UX Lab (BCS456C)": {"credits": 1, "has_lab": True},
+        "Analysis & Design of Algorithms Lab (BCSL404)": {"credits": 1, "has_lab": True},
+        "Biology for Engineering (BBOC407)": {"credits": 2, "has_lab": False},
+        "Universal Human Values and Ethics (BUHK408)": {"credits": 1, "has_lab": False},
+    },
+    "6th Semester": {
+        "Internet of Things (BCS601)": {"credits": 4, "has_lab": True},
+        "Machine Learning (BCS602)": {"credits": 3, "has_lab": False},
+        "Professional Elective (BCS613x)": {"credits": 3, "has_lab": False},
+        "Open Elective Course - Group I (BCS654x)": {"credits": 3, "has_lab": False},
+        "Cloud Computing (BCS605)": {"credits": 4, "has_lab": False},
+        "Distributed Systems (BCS606)": {"credits": 3, "has_lab": False},
+        "AEC – DevOps (BCS657D)": {"credits": 2, "has_lab": True},
+        "Machine Learning Lab (BCSL607)": {"credits": 1, "has_lab": True},
+        "Indian Knowledge Systems (BIKK259)": {"credits": 1, "has_lab": False},
+    }
 }
-
-ALL_SUBJECT_NAMES = list(SUBJECTS_CONFIG.keys())
 
 if "user" not in st.session_state:
     st.session_state.user = None
+
+if "semester" not in st.session_state:
+    st.session_state.semester = "4th Semester"
 
 def refresh():
     if hasattr(st, "rerun"): st.rerun()
@@ -352,24 +402,31 @@ if not st.session_state.user:
             mode = st.radio("Choose Mode:", ["Login", "Register"], horizontal=True)
             if mode == "Login":
                 st.markdown("<h2 style='color: #ffffff; margin-bottom: 4px;'>🔑 Student Login</h2>", unsafe_allow_html=True)
-                st.caption("Enter your university seat number and account password.")
+                st.caption("Enter your university seat number and account password. Your semester is locked to what you registered with.")
                 usn_input = st.text_input("USN (University Seat Number):", placeholder="e.g. 4NI23CS001").strip().upper()
                 pwd_input = st.text_input("Password:", type="password", placeholder="Enter your password")
                 if st.button("🚀 Log In to Dashboard", use_container_width=True):
                     if authenticate_user(usn_input, pwd_input):
                         st.session_state.user = usn_input
+                        st.session_state.semester = get_user_semester(usn_input)
                         refresh()
                     else:
                         st.error("Invalid USN or Password.")
             else:
                 st.markdown("<h2 style='color: #ffffff; margin-bottom: 4px;'>📝 Student Registration</h2>", unsafe_allow_html=True)
-                st.caption("Create a new student profile for academic tracking.")
+                st.caption("Create a new student profile. The semester you choose here is permanent.")
                 new_usn = st.text_input("USN (University Seat Number):", placeholder="e.g. 4NI23CS042").strip().upper()
                 new_name = st.text_input("Full Name:", placeholder="e.g. John Doe")
+                new_sem = st.selectbox(
+                    "Select Your Semester (locked after registration):",
+                    options=list(SEMESTERS_CONFIG.keys()),
+                    index=3,
+                    key="register_sem_select"
+                )
                 new_pwd = st.text_input("Choose Password:", type="password", placeholder="Choose a secure password")
                 if st.button("✨ Create Account", use_container_width=True):
-                    if register_user(new_usn, new_name, new_pwd):
-                        st.success("Account created successfully! Please switch to Login.")
+                    if register_user(new_usn, new_name, new_pwd, semester=new_sem):
+                        st.success(f"Account created for **{new_sem}**! Please switch to Login.")
                     else:
                         st.error("USN already exists.")
     with col_info:
@@ -378,12 +435,17 @@ if not st.session_state.user:
             st.markdown("""
             EduPulse is designed according to the **NIE 2026-27 Examination Scheme**:
             - **Module 1**: Single Subject CIE Evaluation with Test & Component analysis.
-            - **Module 2**: Semester SGPA Calculator with all 6 semester courses.
+            - **Module 2**: Precise Semester SGPA Calculator with courses tailored to your chosen semester.
             - **Module 3**: Smart Assignment Deadline Tracker with dynamic 5-color status indicators.
             """, unsafe_allow_html=True)
 
 # ----------------- MAIN DASHBOARD -----------------
 else:
+    active_sem = st.session_state.get("semester", "4th Semester")
+    if active_sem not in SEMESTERS_CONFIG:
+        active_sem = "4th Semester"
+        st.session_state.semester = active_sem
+
     st.sidebar.markdown(f"""
     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px;">
         <span style="font-size: 26px;">⚡</span>
@@ -392,22 +454,26 @@ else:
     <div class="user-card">
         <div class="user-card-label">Authenticated Student</div>
         <div class="user-card-usn">🎓 {st.session_state.user}</div>
+        <div style="color: #c084fc; font-size: 13px; font-weight: 700; margin-top: 6px;">📚 {active_sem} (Locked)</div>
     </div>
     """, unsafe_allow_html=True)
-    
+
+    SUBJECTS_CONFIG = SEMESTERS_CONFIG[active_sem]
+    ALL_SUBJECT_NAMES = list(SUBJECTS_CONFIG.keys())
+
     st.sidebar.markdown('<div class="logout-btn-box">', unsafe_allow_html=True)
     if st.sidebar.button("🚪 Log Out", use_container_width=True, key="sidebar_logout_btn"):
         st.session_state.user = None
         refresh()
     st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("""
+    st.markdown(f"""
     <div class="hero-banner">
         <div>
             <div class="hero-title">⚡ EduPulse Academic Portal</div>
             <div class="hero-subtitle">National Institute of Engineering • Academic Performance & Assignment Tracker</div>
         </div>
-        <div class="hero-badge">NIE 2026-27 Scheme</div>
+        <div class="hero-badge">NIE 2026-27 • {active_sem}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -421,7 +487,10 @@ else:
     # TAB 1: SINGLE SUBJECT CIE ANALYSER
     # -------------------------------------------------------------
     with tab1:
-        st.header("Single Subject CIE Evaluation & SEE Eligibility Check")
+        st.header(f"Single Subject CIE Evaluation ({active_sem})")
+        if "single_sub_select" in st.session_state and st.session_state.single_sub_select not in ALL_SUBJECT_NAMES:
+            del st.session_state["single_sub_select"]
+
         sub_select = st.selectbox("Select Subject:", ALL_SUBJECT_NAMES, key="single_sub_select")
         cfg = SUBJECTS_CONFIG[sub_select]
 
@@ -492,10 +561,11 @@ else:
     # TAB 2: DETAILED SEMESTER SGPA CALCULATOR
     # -------------------------------------------------------------
     with tab2:
-        st.header("🎯 Precise Semester SGPA Calculator")
+        st.header(f"🎯 Precise Semester SGPA Calculator ({active_sem})")
         st.caption("Marks Breakdown: Test-1 (25) + Test-2 (25) + Quiz (20) + Lab/Assignment (30) = Total 100 (Scaled down to 50). SEE 100 marks scaled down to 50.")
 
         subject_inputs = []
+        sem_slug = active_sem.replace(" ", "_").lower()
 
         grid_cols = st.columns(2)
         for idx, (s_name, s_info) in enumerate(SUBJECTS_CONFIG.items()):
@@ -508,17 +578,17 @@ else:
                     st.caption(f"**Credits:** `{s_info['credits']}` | **Type:** `{type_badge}`")
 
                     c1, c2, c3 = st.columns(3)
-                    t1_val = c1.number_input("Test-1 (25)", min_value=0.0, max_value=25.0, value=20.0, step=0.5, key=f"t1_{idx}")
-                    t2_val = c2.number_input("Test-2 (25)", min_value=0.0, max_value=25.0, value=20.0, step=0.5, key=f"t2_{idx}")
-                    quiz_val = c3.number_input("Quiz (20)", min_value=0.0, max_value=20.0, value=16.0, step=0.5, key=f"quiz_{idx}")
+                    t1_val = c1.number_input("Test-1 (25)", min_value=0.0, max_value=25.0, value=20.0, step=0.5, key=f"t1_{sem_slug}_{idx}")
+                    t2_val = c2.number_input("Test-2 (25)", min_value=0.0, max_value=25.0, value=20.0, step=0.5, key=f"t2_{sem_slug}_{idx}")
+                    quiz_val = c3.number_input("Quiz (20)", min_value=0.0, max_value=20.0, value=16.0, step=0.5, key=f"quiz_{sem_slug}_{idx}")
 
                     c4, c5 = st.columns(2)
                     if s_info["has_lab"]:
-                        lab_or_assign_val = c4.number_input("Lab Marks (30)", min_value=0.0, max_value=30.0, value=25.0, step=0.5, key=f"lab_{idx}")
+                        lab_or_assign_val = c4.number_input("Lab Marks (30)", min_value=0.0, max_value=30.0, value=25.0, step=0.5, key=f"lab_{sem_slug}_{idx}")
                     else:
-                        lab_or_assign_val = c4.number_input("Assignment (30)", min_value=0.0, max_value=30.0, value=25.0, step=0.5, key=f"assign_{idx}")
+                        lab_or_assign_val = c4.number_input("Assignment (30)", min_value=0.0, max_value=30.0, value=25.0, step=0.5, key=f"assign_{sem_slug}_{idx}")
 
-                    see_val = c5.number_input("Expected SEE (100)", min_value=0.0, max_value=100.0, value=80.0, step=1.0, key=f"see_{idx}")
+                    see_val = c5.number_input("Expected SEE (100)", min_value=0.0, max_value=100.0, value=80.0, step=1.0, key=f"see_{sem_slug}_{idx}")
 
                     # Calculate CIE 100 -> 50
                     cie_calc = calculate_cie_detailed(t1_val, t2_val, quiz_val, lab_or_assign_val, is_lab=s_info["has_lab"])
@@ -556,6 +626,8 @@ else:
 
         with st.expander("➕ Add New Assignment", expanded=False):
             with st.form("new_assignment_form"):
+                if "new_assign_sub" in st.session_state and st.session_state.new_assign_sub not in ALL_SUBJECT_NAMES:
+                    del st.session_state["new_assign_sub"]
                 subject_name = st.selectbox("Select Subject for Assignment:", ALL_SUBJECT_NAMES, key="new_assign_sub")
                 st.caption(f"📌 Task will be filed under: **{subject_name}**")
                 
@@ -575,6 +647,8 @@ else:
         if raw_assignments:
             with st.container(border=True):
                 st.markdown("### 📋 Assignment List")
+                if "table_filter" in st.session_state and st.session_state.table_filter != "All Subjects" and st.session_state.table_filter not in ALL_SUBJECT_NAMES:
+                    del st.session_state["table_filter"]
                 filter_sub = st.selectbox("🔍 Filter Table by Subject:", ["All Subjects"] + ALL_SUBJECT_NAMES, key="table_filter")
                 st.markdown(f'<div class="selected-tag">🔍 Active Filter: <b>{filter_sub}</b></div>', unsafe_allow_html=True)
 

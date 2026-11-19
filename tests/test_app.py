@@ -14,7 +14,8 @@ from backend.models import (
     authenticate_user,
     add_assignment,
     get_user_assignments,
-    toggle_assignment_completion
+    toggle_assignment_completion,
+    get_user_semester
 )
 
 # ----------------- CIE & ELIGIBILITY TESTS -----------------
@@ -79,8 +80,9 @@ def test_deadline_status():
 def test_database_crud(tmp_path):
     test_db = str(tmp_path / "test.db")
     init_db(test_db)
-    assert register_user("4NI23CS001", "Govardhan", "pass123", db_path=test_db) is True
+    assert register_user("4NI23CS001", "Govardhan", "pass123", semester="3rd Semester", db_path=test_db) is True
     assert authenticate_user("4NI23CS001", "pass123", db_path=test_db) is True
+    assert get_user_semester("4NI23CS001", db_path=test_db) == "3rd Semester"
     add_assignment("4NI23CS001", "CDD", "Task 1", "2026-11-20", db_path=test_db)
     tasks = get_user_assignments("4NI23CS001", db_path=test_db)
     assert len(tasks) == 1

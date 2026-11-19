@@ -26,7 +26,8 @@ def init_db(db_path=DB_PATH):
     CREATE TABLE IF NOT EXISTS users (
         usn TEXT PRIMARY KEY,
         name TEXT NOT NULL,
-        password_hash TEXT NOT NULL
+        password_hash TEXT NOT NULL,
+        semester TEXT NOT NULL DEFAULT '4th Semester'
     );
 
     CREATE TABLE IF NOT EXISTS cie_records (
@@ -51,15 +52,21 @@ def init_db(db_path=DB_PATH):
     );
     """)
     conn.commit()
+    # Migrate: add semester column if missing (existing DBs)
+    try:
+        conn.execute("ALTER TABLE users ADD COLUMN semester TEXT NOT NULL DEFAULT '4th Semester'")
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass  # column already exists
     conn.close()
 
 # ---------- USER OPERATIONS ----------
-def register_user(usn: str, name: str, password: str, db_path=DB_PATH) -> bool:
+def register_user(usn: str, name: str, password: str, semester: str = "4th Semester", db_path=DB_PATH) -> bool:
     conn = get_connection(db_path)
     try:
         conn.execute(
-            "INSERT INTO users (usn, name, password_hash) VALUES (?, ?, ?)",
-            (usn.strip().upper(), name.strip(), hash_password(password))
+            "INSERT INTO users (usn, name, password_hash, semester) VALUES (?, ?, ?, ?)",
+            (usn.strip().upper(), name.strip(), hash_password(password), semester)
         )
         conn.commit()
         return True
@@ -76,6 +83,16 @@ def authenticate_user(usn: str, password: str, db_path=DB_PATH) -> bool:
     if row and row["password_hash"] == hash_password(password):
         return True
     return False
+
+def get_user_semester(usn: str, db_path=DB_PATH) -> str:
+    """Return the semester the student registered with."""
+    conn = get_connection(db_path)
+    cur = conn.execute("SELECT semester FROM users WHERE usn = ?", (usn.strip().upper(),))
+    row = cur.fetchone()
+    conn.close()
+    if row:
+        return row["semester"]
+    return "4th Semester"
 
 # ---------- ASSIGNMENT OPERATIONS ----------
 def add_assignment(usn: str, subject: str, title: str, due_date: str, db_path=DB_PATH):
