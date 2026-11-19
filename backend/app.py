@@ -360,7 +360,7 @@ if not st.session_state.user:
                         st.session_state.user = usn_input
                         refresh()
                     else:
-                        st.error("Invalid credentials. (Default Demo: 4NI23CS001 / password123)")
+                        st.error("Invalid USN or Password.")
             else:
                 st.markdown("<h2 style='color: #ffffff; margin-bottom: 4px;'>📝 Student Registration</h2>", unsafe_allow_html=True)
                 st.caption("Create a new student profile for academic tracking.")
@@ -380,12 +380,6 @@ if not st.session_state.user:
             - **Module 1**: Single Subject CIE Evaluation with Test & Component analysis.
             - **Module 2**: Semester SGPA Calculator with all 6 semester courses.
             - **Module 3**: Smart Assignment Deadline Tracker with dynamic 5-color status indicators.
-            
-            <div style="background: rgba(147, 51, 234, 0.25); border: 1.5px solid #c084fc; border-radius: 10px; padding: 12px 16px; margin-top: 14px;">
-                <div style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: #d8b4fe; letter-spacing: 0.05em;">Default Demo Credentials</div>
-                <div style="font-size: 15px; font-weight: 700; color: #ffffff; margin-top: 4px;">USN: <code style="color: #fde047;">4NI23CS001</code></div>
-                <div style="font-size: 15px; font-weight: 700; color: #ffffff;">Password: <code style="color: #fde047;">password123</code></div>
-            </div>
             """, unsafe_allow_html=True)
 
 # ----------------- MAIN DASHBOARD -----------------
