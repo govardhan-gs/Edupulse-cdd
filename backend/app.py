@@ -43,7 +43,7 @@ init_db()
 
 st.set_page_config(page_title="EduPulse - Student Dashboard", page_icon="⚡", layout="wide")
 
-# High-contrast, clean modern SaaS theme matching EduPulse Design System
+# High-contrast, rich purple atmosphere with soft academic watermark background
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -52,189 +52,254 @@ st.markdown("""
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
-    /* Force Light Theme Background and Text */
+    /* Ambient Rich Purple Blend Background with Soft Academic Watermark */
     .stApp {
-        background-color: #f8fafc !important;
-        color: #0f172a !important;
+        background-color: #0c0617 !important;
+        background-image: 
+            radial-gradient(circle at 12% 18%, rgba(147, 51, 234, 0.40) 0%, transparent 45%),
+            radial-gradient(circle at 88% 25%, rgba(99, 102, 241, 0.35) 0%, transparent 45%),
+            radial-gradient(circle at 50% 80%, rgba(168, 85, 247, 0.28) 0%, transparent 50%),
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cpath d='M30,35 L50,25 L70,35 L50,45 Z M50,45 L50,55 C45,55 40,53 35,50' stroke='rgba(216,180,254,0.18)' stroke-width='2' fill='none'/%3E%3Cpath d='M110,30 C120,25 130,25 140,28 L140,48 C130,45 120,45 110,50 C100,45 90,45 80,48 L80,28 C90,25 100,25 110,30 Z M110,30 L110,50' stroke='rgba(192,132,252,0.16)' stroke-width='2' fill='none'/%3E%3Cpath d='M20,120 L35,120 L42,105 L50,135 L58,112 L65,120 L80,120' stroke='rgba(168,85,247,0.2)' stroke-width='2.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='125' cy='115' r='3' fill='rgba(192,132,252,0.22)'/%3E%3Ccircle cx='145' cy='105' r='2' fill='rgba(216,180,254,0.18)'/%3E%3Cline x1='125' y1='115' x2='145' y2='105' stroke='rgba(168,85,247,0.15)' stroke-width='1.5'/%3E%3Cpath d='M130,135 L133,142 L140,145 L133,148 L130,155 L127,148 L120,145 L127,142 Z' fill='rgba(233,213,255,0.14)'/%3E%3C/svg%3E"),
+            linear-gradient(135deg, #100622 0%, #240c42 40%, #15082b 75%, #0a0414 100%) !important;
+        background-attachment: fixed !important;
+        color: #f8fafc !important;
     }
 
     /* Top Hero Header */
     .hero-banner {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        border-radius: 16px;
-        padding: 24px 32px;
-        margin-bottom: 24px;
-        color: white;
-        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        background: linear-gradient(135deg, #240e49 0%, #170733 50%, #0d041c 100%) !important;
+        border: 1px solid rgba(192, 132, 252, 0.35) !important;
+        border-radius: 16px !important;
+        padding: 24px 32px !important;
+        margin-bottom: 24px !important;
+        box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.5), 0 0 20px rgba(168, 85, 247, 0.2) !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
     }
     .hero-title {
-        font-size: 24px;
-        font-weight: 800;
-        margin: 0;
+        font-size: 26px !important;
+        font-weight: 800 !important;
+        margin: 0 !important;
         color: #ffffff !important;
-        display: flex;
-        align-items: center;
-        gap: 10px;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
     }
     .hero-subtitle {
-        margin: 6px 0 0 0;
-        color: #94a3b8 !important;
-        font-size: 14px;
+        margin: 6px 0 0 0 !important;
+        color: #c084fc !important;
+        font-size: 14px !important;
     }
     .hero-badge {
-        background: rgba(37, 99, 235, 0.25);
-        border: 1px solid rgba(147, 197, 253, 0.35);
-        color: #93c5fd !important;
-        padding: 6px 14px;
-        border-radius: 9999px;
-        font-size: 13px;
-        font-weight: 600;
+        background: rgba(168, 85, 247, 0.3) !important;
+        border: 1px solid rgba(216, 180, 254, 0.5) !important;
+        color: #e9d5ff !important;
+        padding: 6px 16px !important;
+        border-radius: 9999px !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.02em !important;
     }
 
     /* Selected Tag Pills */
     .selected-tag {
-        background-color: #eff6ff !important;
-        color: #1d4ed8 !important;
-        padding: 8px 14px !important;
+        background-color: rgba(147, 51, 234, 0.25) !important;
+        color: #f3e8ff !important;
+        padding: 8px 16px !important;
         border-radius: 8px !important;
         font-size: 14px !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
         display: inline-block !important;
         margin-top: 6px !important;
         margin-bottom: 14px !important;
-        border: 1px solid #bfdbfe !important;
+        border: 1px solid #c084fc !important;
     }
 
     /* Sidebar Styling */
     section[data-testid="stSidebar"] {
-        background-color: #ffffff !important;
-        border-right: 1px solid #e2e8f0 !important;
+        background-color: #120726 !important;
+        border-right: 1px solid rgba(168, 85, 247, 0.3) !important;
     }
-    section[data-testid="stSidebar"] .stMarkdown h1, 
-    section[data-testid="stSidebar"] .stMarkdown h2, 
-    section[data-testid="stSidebar"] .stMarkdown h3 {
-        color: #0f172a !important;
-        font-weight: 800;
+    section[data-testid="stSidebar"] * {
+        color: #ffffff !important;
     }
 
     .user-card {
-        background: #f1f5f9;
-        border: 1px solid #cbd5e1;
-        border-radius: 12px;
-        padding: 12px 16px;
-        margin-bottom: 16px;
+        background: linear-gradient(135deg, rgba(147, 51, 234, 0.25) 0%, rgba(99, 102, 241, 0.25) 100%) !important;
+        border: 1.5px solid rgba(192, 132, 252, 0.45) !important;
+        border-radius: 12px !important;
+        padding: 14px 16px !important;
+        margin-bottom: 16px !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
     }
     .user-card-label {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: #64748b !important;
-        font-weight: 700;
+        font-size: 11px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        color: #d8b4fe !important;
+        font-weight: 800 !important;
     }
     .user-card-usn {
-        font-size: 16px;
-        font-weight: 800;
-        color: #1e293b !important;
-        margin-top: 2px;
+        font-size: 17px !important;
+        font-weight: 800 !important;
+        color: #ffffff !important;
+        margin-top: 3px !important;
+    }
+
+    /* VIBRANT HIGH-CONTRAST LOGOUT BUTTON */
+    .logout-btn-box div.stButton > button,
+    section[data-testid="stSidebar"] div.stButton > button {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        color: #ffffff !important;
+        border: 1.5px solid #fca5a5 !important;
+        border-radius: 10px !important;
+        font-weight: 800 !important;
+        font-size: 15px !important;
+        letter-spacing: 0.03em !important;
+        box-shadow: 0 4px 16px rgba(239, 68, 68, 0.5) !important;
+        padding: 10px 20px !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    .logout-btn-box div.stButton > button:hover,
+    section[data-testid="stSidebar"] div.stButton > button:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
+        box-shadow: 0 6px 24px rgba(239, 68, 68, 0.75) !important;
+        transform: translateY(-2px) !important;
+    }
+    .logout-btn-box div.stButton > button * {
+        color: #ffffff !important;
+        font-weight: 800 !important;
     }
 
     /* Container & Card Styling */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: #ffffff !important;
-        border-radius: 14px !important;
-        border: 1px solid #e2e8f0 !important;
-        box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04) !important;
-        padding: 12px !important;
+        background-color: rgba(26, 14, 48, 0.88) !important;
+        border-radius: 16px !important;
+        border: 1px solid rgba(192, 132, 252, 0.35) !important;
+        box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.45) !important;
+        backdrop-filter: blur(12px) !important;
+        padding: 16px !important;
     }
 
     /* Metric Cards */
     div[data-testid="stMetric"] {
-        background-color: #ffffff !important;
-        border: 1px solid #e2e8f0 !important;
-        border-radius: 12px !important;
+        background-color: rgba(35, 17, 66, 0.9) !important;
+        border: 1.5px solid rgba(192, 132, 252, 0.4) !important;
+        border-radius: 14px !important;
         padding: 16px 20px !important;
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03) !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
     }
     div[data-testid="stMetricLabel"] p {
-        color: #64748b !important;
-        font-weight: 600 !important;
+        color: #d8b4fe !important;
+        font-weight: 700 !important;
         font-size: 13px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.04em !important;
     }
     div[data-testid="stMetricValue"] div {
-        color: #0f172a !important;
+        color: #ffffff !important;
         font-weight: 800 !important;
-        font-size: 26px !important;
+        font-size: 28px !important;
     }
 
-    /* Buttons */
-    div.stButton > button {
-        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    /* Main Action Buttons */
+    div[data-testid="stMain"] div.stButton > button,
+    div[data-testid="stMain"] div.stFormSubmitButton > button {
+        background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%) !important;
         color: #ffffff !important;
-        border: none !important;
-        border-radius: 8px !important;
-        font-weight: 600 !important;
-        padding: 8px 16px !important;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
-        transition: all 0.15s ease-in-out !important;
+        border: 1px solid #c084fc !important;
+        border-radius: 10px !important;
+        font-weight: 700 !important;
+        padding: 10px 22px !important;
+        box-shadow: 0 4px 18px rgba(168, 85, 247, 0.35) !important;
+        transition: all 0.2s ease !important;
     }
-    div.stButton > button:hover {
-        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3) !important;
+    div[data-testid="stMain"] div.stButton > button:hover,
+    div[data-testid="stMain"] div.stFormSubmitButton > button:hover {
+        background: linear-gradient(135deg, #9333ea 0%, #4f46e5 100%) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 24px rgba(168, 85, 247, 0.55) !important;
     }
-
-    div.stFormSubmitButton > button {
-        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    div[data-testid="stMain"] div.stButton > button *,
+    div[data-testid="stMain"] div.stFormSubmitButton > button * {
         color: #ffffff !important;
-        border: none !important;
-        border-radius: 8px !important;
-        font-weight: 600 !important;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
+        font-weight: 700 !important;
     }
 
     /* Tabs */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        border-bottom: 2px solid #e2e8f0;
+        gap: 10px !important;
+        border-bottom: 2px solid rgba(168, 85, 247, 0.35) !important;
     }
     .stTabs [data-baseweb="tab"] {
-        font-weight: 600;
-        font-size: 15px;
-        color: #64748b;
-        padding: 10px 18px;
-        border-radius: 8px 8px 0 0;
+        font-weight: 700 !important;
+        font-size: 15px !important;
+        color: #c4b5fd !important;
+        padding: 10px 18px !important;
+        border-radius: 8px 8px 0 0 !important;
     }
     .stTabs [aria-selected="true"] {
-        color: #2563eb !important;
-        border-bottom: 3px solid #2563eb !important;
-        background: transparent !important;
+        color: #ffffff !important;
+        border-bottom: 3px solid #c084fc !important;
+        background: rgba(168, 85, 247, 0.22) !important;
     }
 
-    /* Headings & Text */
-    h1, h2, h3, h4, p, span, label {
-        color: #0f172a !important;
+    /* Text & Headings */
+    h1, h2, h3, h4, p, span, label, div[data-testid="stMarkdownContainer"] p {
+        color: #ffffff !important;
     }
 
-    /* Inputs and Dropdowns */
-    div[data-baseweb="input"] > div,
-    div[data-baseweb="select"] > div {
+    /* Inputs - High Contrast */
+    div[data-baseweb="input"] > div {
         background-color: #ffffff !important;
-        border: 1px solid #cbd5e1 !important;
+        border: 2px solid #a855f7 !important;
         border-radius: 8px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    }
+    div[data-baseweb="input"] input {
+        color: #0f172a !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+    }
+    div[data-baseweb="input"] input::placeholder {
+        color: #64748b !important;
+    }
+
+    /* Number inputs buttons */
+    div[data-baseweb="input"] button {
+        background-color: #f1f5f9 !important;
         color: #0f172a !important;
     }
 
+    /* Dropdowns */
+    div[data-baseweb="select"] > div {
+        background-color: #1e1038 !important;
+        border: 1.5px solid #a855f7 !important;
+        border-radius: 8px !important;
+    }
     div[data-baseweb="select"] * {
-        color: #0f172a !important;
+        color: #ffffff !important;
+        font-weight: 600 !important;
     }
 
-    /* Alert Boxes */
+    /* Alert Styling */
     div[data-testid="stAlert"] {
         border-radius: 12px !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+
+    /* Slider Accents */
+    div[data-testid="stSlider"] div[role="slider"] {
+        background-color: #c084fc !important;
+        border: 2px solid #ffffff !important;
+    }
+
+    /* Radio buttons */
+    div[data-testid="stRadio"] label {
+        color: #ffffff !important;
+        font-weight: 700 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -284,56 +349,63 @@ if not st.session_state.user:
     col_auth, col_info = st.columns([1.2, 1])
     with col_auth:
         with st.container(border=True):
-            mode = st.radio("Action:", ["Login", "Register"], horizontal=True)
+            mode = st.radio("Choose Mode:", ["Login", "Register"], horizontal=True)
             if mode == "Login":
-                st.subheader("Student Login")
-                usn_input = st.text_input("USN:", placeholder="e.g. 4NI23CS001").strip().upper()
-                pwd_input = st.text_input("Password:", type="password")
-                if st.button("Log In", use_container_width=True):
+                st.markdown("<h2 style='color: #ffffff; margin-bottom: 4px;'>🔑 Student Login</h2>", unsafe_allow_html=True)
+                st.caption("Enter your university seat number and account password.")
+                usn_input = st.text_input("USN (University Seat Number):", placeholder="e.g. 4NI23CS001").strip().upper()
+                pwd_input = st.text_input("Password:", type="password", placeholder="Enter your password")
+                if st.button("🚀 Log In to Dashboard", use_container_width=True):
                     if authenticate_user(usn_input, pwd_input):
                         st.session_state.user = usn_input
                         refresh()
                     else:
-                        st.error("Invalid credentials. (Demo: 4NI23CS001 / password123)")
+                        st.error("Invalid credentials. (Default Demo: 4NI23CS001 / password123)")
             else:
-                st.subheader("Student Registration")
-                new_usn = st.text_input("USN:").strip().upper()
-                new_name = st.text_input("Full Name:")
-                new_pwd = st.text_input("Password:", type="password")
-                if st.button("Create Account", use_container_width=True):
+                st.markdown("<h2 style='color: #ffffff; margin-bottom: 4px;'>📝 Student Registration</h2>", unsafe_allow_html=True)
+                st.caption("Create a new student profile for academic tracking.")
+                new_usn = st.text_input("USN (University Seat Number):", placeholder="e.g. 4NI23CS042").strip().upper()
+                new_name = st.text_input("Full Name:", placeholder="e.g. John Doe")
+                new_pwd = st.text_input("Choose Password:", type="password", placeholder="Choose a secure password")
+                if st.button("✨ Create Account", use_container_width=True):
                     if register_user(new_usn, new_name, new_pwd):
-                        st.success("Account created! Please switch to Login.")
+                        st.success("Account created successfully! Please switch to Login.")
                     else:
                         st.error("USN already exists.")
     with col_info:
         with st.container(border=True):
-            st.subheader("💡 Welcome to EduPulse")
+            st.markdown("<h3 style='color: #ffffff; margin-bottom: 4px;'>💡 Welcome to EduPulse</h3>", unsafe_allow_html=True)
             st.markdown("""
             EduPulse is designed according to the **NIE 2026-27 Examination Scheme**:
             - **Module 1**: Single Subject CIE Evaluation with Test & Component analysis.
             - **Module 2**: Semester SGPA Calculator with all 6 semester courses.
             - **Module 3**: Smart Assignment Deadline Tracker with dynamic 5-color status indicators.
             
-            *Default demo credentials:*
-            - **USN:** `4NI23CS001`
-            - **Password:** `password123`
-            """)
+            <div style="background: rgba(147, 51, 234, 0.25); border: 1.5px solid #c084fc; border-radius: 10px; padding: 12px 16px; margin-top: 14px;">
+                <div style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: #d8b4fe; letter-spacing: 0.05em;">Default Demo Credentials</div>
+                <div style="font-size: 15px; font-weight: 700; color: #ffffff; margin-top: 4px;">USN: <code style="color: #fde047;">4NI23CS001</code></div>
+                <div style="font-size: 15px; font-weight: 700; color: #ffffff;">Password: <code style="color: #fde047;">password123</code></div>
+            </div>
+            """, unsafe_allow_html=True)
 
 # ----------------- MAIN DASHBOARD -----------------
 else:
     st.sidebar.markdown(f"""
     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px;">
         <span style="font-size: 26px;">⚡</span>
-        <span style="font-size: 22px; font-weight: 800; color: #1e293b;">EduPulse</span>
+        <span style="font-size: 22px; font-weight: 800; color: #ffffff;">EduPulse</span>
     </div>
     <div class="user-card">
         <div class="user-card-label">Authenticated Student</div>
         <div class="user-card-usn">🎓 {st.session_state.user}</div>
     </div>
     """, unsafe_allow_html=True)
-    if st.sidebar.button("Logout", use_container_width=True):
+    
+    st.sidebar.markdown('<div class="logout-btn-box">', unsafe_allow_html=True)
+    if st.sidebar.button("🚪 Log Out", use_container_width=True, key="sidebar_logout_btn"):
         st.session_state.user = None
         refresh()
+    st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("""
     <div class="hero-banner">
